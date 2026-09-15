@@ -1,0 +1,1 @@
+for loop is still only in range numbers, fix when array update come

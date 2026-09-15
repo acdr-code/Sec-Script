@@ -1,0 +1,22 @@
+out("Hello")
+
+let x be "me"
+
+if (x == "me"){
+    out("ues")
+}
+else {
+    out("nuwe")
+}
+
+for i from 1 to 10 {
+    out(i)
+}
+
+out("Write your name")
+in (y)
+out(y)
+
+out(x)
+in(x)
+out(x)
