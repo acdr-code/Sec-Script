@@ -30,6 +30,12 @@ def evaluate(node):
         if op == "<=": return left <= right
         if op == ">=": return left >= right
 
+    if isinstance(node, AST.ListNode):
+        listEnv = []
+        for element in node.elements:
+            listEnv.append(evaluate(element))
+        return listEnv
+
     raise TypeError(f"Cannot evaluate: {type(node)}")
 
 

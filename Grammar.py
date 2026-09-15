@@ -21,6 +21,9 @@ grammar = r"""
 
     ?expr: comparison
          | atom
+         | list
+
+    list: "[" (expr ("," expr)*)? "]"
 
     comparison: atom COMP_OP atom
 

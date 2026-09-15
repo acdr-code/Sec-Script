@@ -43,10 +43,13 @@ class BooleanLiteral:
     def __init__(self, value):
         self.value = value
 
-
 class Variable:
     def __init__(self, name):
         self.name = name
+
+class ListNode:
+    def __init__(self, elements):
+        self.elements = elements
 
 class ForLoopNode:
     def __init__(self, var_name, start, end, body):
@@ -59,7 +62,6 @@ class WhileLoopNode:
     def __init__(self, condition, body):
         self.condition = condition
         self.body = body
-
 
 # ====================== Transformer ======================
 
@@ -83,6 +85,10 @@ class ASTBuilder(Transformer):
         name = items[0].name
         value = items[1]
         return LetNode(name, value)
+
+    def list(self, items):
+        values = items[:]
+        return ListNode(values)
 
     def if_stmt(self, items):
         condition = items[0]
