@@ -30,3 +30,5 @@ FUNCTION add(a, b) {
 
 let result be add(2,3)
 out(result)
+
+out("hello" & good)

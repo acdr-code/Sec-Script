@@ -36,6 +36,7 @@ grammar = r"""
          | atom
          | list
          | math_ing
+         | connect_ing
 
     list: "[" (expr ("," expr)*)? "]"
 
@@ -43,6 +44,7 @@ grammar = r"""
 
     comparison: atom COMP_OP atom
     math_ing: atom MATH_OP atom
+    connect_ing: atom CONNECT_OP atom
 
     atom: NUMBER
         | ESCAPED_STRING
@@ -54,6 +56,7 @@ grammar = r"""
 
     COMP_OP: "==" | "!=" | "<" | ">" | "<=" | ">="
     MATH_OP: "+" | "-" | "/" | "*"
+    CONNECT_OP: "&"
     TRUE: "True"
     FALSE: "False"
 

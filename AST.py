@@ -170,6 +170,10 @@ class ASTBuilder(Transformer):
         left, op, right = items
         return BinaryOpNode(left, op, right)
 
+    def connect_ing(self, items):
+        left, op, right = items
+        return BinaryOpNode(left, op, right)
+
     def atom(self, items):
         return items[0]
 

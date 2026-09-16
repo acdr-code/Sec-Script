@@ -55,6 +55,7 @@ def evaluate(node):
         if op == "-": return left - right
         if op == "/": return left / right
         if op == "*": return left * right
+        if op == "&": return str(left) + str(right)
 
     if isinstance(node, AST.ListNode):
         listEnv = []
