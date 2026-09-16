@@ -35,12 +35,14 @@ grammar = r"""
     ?expr: comparison
          | atom
          | list
+         | math_ing
 
     list: "[" (expr ("," expr)*)? "]"
 
     index_access: NAME "[" expr "]"
 
     comparison: atom COMP_OP atom
+    math_ing: atom MATH_OP atom
 
     atom: NUMBER
         | ESCAPED_STRING
@@ -51,6 +53,7 @@ grammar = r"""
         | func_call
 
     COMP_OP: "==" | "!=" | "<" | ">" | "<=" | ">="
+    MATH_OP: "+" | "-" | "/" | "*"
     TRUE: "True"
     FALSE: "False"
 

@@ -166,6 +166,10 @@ class ASTBuilder(Transformer):
         left, op, right = items
         return BinaryOpNode(left, str(op), right)
 
+    def math_ing(self, items):
+        left, op, right = items
+        return BinaryOpNode(left, op, right)
+
     def atom(self, items):
         return items[0]
 
