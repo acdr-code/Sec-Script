@@ -30,6 +30,8 @@ grammar = r"""
 
     return_stmt: "GIVE" expr
 
+    COMMENT: /\/\/[^\n]*/
+
     ?expr: comparison
          | atom
          | list
@@ -57,6 +59,7 @@ grammar = r"""
     %import common.ESCAPED_STRING
     %import common.WS
     %ignore WS
+    %ignore COMMENT
 """
 
 parser = Lark(grammar, start="start", parser="lalr")

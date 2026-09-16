@@ -21,3 +21,5 @@ FUNCTION goodbye(name) {
 
 let good be goodbye("Atsh")
 out(good)
+
+//this is a test for how comment work let me be me
