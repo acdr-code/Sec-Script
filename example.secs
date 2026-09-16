@@ -8,3 +8,16 @@ out(mylist[0])
 for i in mylist {
     out(i)
 }
+
+FUNCTION hello (name) {
+    out(name)
+}
+
+hello("arshia")
+
+FUNCTION goodbye(name) {
+    GIVE "Goodbye"
+}
+
+let good be goodbye("Atsh")
+out(good)

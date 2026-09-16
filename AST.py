@@ -74,6 +74,16 @@ class WhileLoopNode:
         self.condition = condition
         self.body = body
 
+class FunctionNode:
+    def __init__(self, name, parametrs, body):
+        self.name = name
+        self.parametrs = parametrs
+        self.body = body
+
+class ReturnNode:
+    def __init__(self, value):
+        self.value = value
+
 # ====================== Transformer ======================
 
 class ASTBuilder(Transformer):
@@ -89,8 +99,15 @@ class ASTBuilder(Transformer):
 
     def func_call(self, items):
         name = items[0].name
-        argument = items[1]
-        return FunctionCallNode(name, argument)
+        arguments = items[1]
+        return FunctionCallNode(name, arguments)
+
+    def args(self, items):
+        values = []
+        for item in items:
+            values.append(item)
+        return values
+    
     
     def let_stmt(self, items):
         name = items[0].name
@@ -129,6 +146,21 @@ class ASTBuilder(Transformer):
         condition = items[0]
         body = items[1:]
         return WhileLoopNode(condition, body)
+
+    def function_stmt(self, items):
+        name = items[0].name
+        parametrs = items[1]
+        body = items[2:]
+        return FunctionNode(name, parametrs, body)
+
+    def params(self, items):
+        values = []
+        for item in items:
+            values.append(item.name)
+        return values
+
+    def return_stmt(self, items):
+        return ReturnNode(items[0])
 
     def comparison(self, items):
         left, op, right = items

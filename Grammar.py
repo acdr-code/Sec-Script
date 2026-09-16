@@ -9,10 +9,13 @@ grammar = r"""
              | for_stmt
              | foreach_stmt
              | while_stmt
+             | function_stmt
+             | return_stmt
 
     if_stmt: "if" "(" expr ")" "{" statement+ "}" ["else" "{" statement+ "}"]
 
-    func_call: NAME "(" expr ")"
+    func_call: NAME "(" args ")"
+    args: (expr ("," expr)*)?
 
     let_stmt: "let" NAME "be" expr
 
@@ -21,6 +24,11 @@ grammar = r"""
     while_stmt: "while" expr "{" statement+ "}"
 
     foreach_stmt: "for" NAME "in" NAME "{" statement+ "}"
+
+    function_stmt: "FUNCTION" NAME "(" params ")" "{" statement+ "}"
+    params: (NAME ("," NAME)*)?
+
+    return_stmt: "GIVE" expr
 
     ?expr: comparison
          | atom
@@ -38,6 +46,7 @@ grammar = r"""
         | FALSE
         | NAME
         | index_access
+        | func_call
 
     COMP_OP: "==" | "!=" | "<" | ">" | "<=" | ">="
     TRUE: "True"
