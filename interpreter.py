@@ -36,8 +36,12 @@ def evaluate(node):
             listEnv.append(evaluate(element))
         return listEnv
 
-    raise TypeError(f"Cannot evaluate: {type(node)}")
+    elif isinstance(node, AST.IndexingNode):
+            actualName = varEnv[node.list_name]
+            index = evaluate(node.index)
+            return actualName[index]
 
+    raise TypeError(f"Cannot evaluate: {type(node)}")
 
 def interpret(node):
     if isinstance(node, AST.FunctionCallNode):
@@ -72,6 +76,14 @@ def interpret(node):
 
         for i in range(start_val, end_val + 1):
             varEnv[node.var_name] = i
+            for stmt in node.body:
+                interpret(stmt)
+
+    elif isinstance(node, AST.ForItemLoopNode):
+        list_name = varEnv[node.list_name]
+
+        for item in list_name:
+            varEnv[node.var_name] = item
             for stmt in node.body:
                 interpret(stmt)
 

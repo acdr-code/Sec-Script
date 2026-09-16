@@ -51,11 +51,22 @@ class ListNode:
     def __init__(self, elements):
         self.elements = elements
 
+class IndexingNode:
+    def __init__(self, list_name, index):
+        self.list_name = list_name
+        self.index = index
+
 class ForLoopNode:
     def __init__(self, var_name, start, end, body):
         self.var_name = var_name
         self. start = start
         self.end = end
+        self.body = body
+
+class ForItemLoopNode:
+    def __init__(self, var_name, list_name, body):
+        self.var_name = var_name
+        self.list_name = list_name
         self.body = body
 
 class WhileLoopNode:
@@ -90,6 +101,11 @@ class ASTBuilder(Transformer):
         values = items[:]
         return ListNode(values)
 
+    def index_access(self, items):
+        name = items[0].name
+        value = items[1]
+        return IndexingNode(name, value)
+
     def if_stmt(self, items):
         condition = items[0]
         then_body = items[1]
@@ -102,6 +118,12 @@ class ASTBuilder(Transformer):
         end = items[2]
         body = items[3:]
         return ForLoopNode(var_name, start, end, body)
+
+    def foreach_stmt(self, items):
+        var_name = items[0].name
+        list_name = items[1].name
+        body = items[2:]
+        return ForItemLoopNode(var_name, list_name, body)
 
     def while_stmt(self, items):
         condition = items[0]

@@ -7,6 +7,7 @@ grammar = r"""
              | let_stmt
              | if_stmt
              | for_stmt
+             | foreach_stmt
              | while_stmt
 
     if_stmt: "if" "(" expr ")" "{" statement+ "}" ["else" "{" statement+ "}"]
@@ -19,11 +20,15 @@ grammar = r"""
 
     while_stmt: "while" expr "{" statement+ "}"
 
+    foreach_stmt: "for" NAME "in" NAME "{" statement+ "}"
+
     ?expr: comparison
          | atom
          | list
 
     list: "[" (expr ("," expr)*)? "]"
+
+    index_access: NAME "[" expr "]"
 
     comparison: atom COMP_OP atom
 
@@ -32,6 +37,7 @@ grammar = r"""
         | TRUE
         | FALSE
         | NAME
+        | index_access
 
     COMP_OP: "==" | "!=" | "<" | ">" | "<=" | ">="
     TRUE: "True"

@@ -1,0 +1,10 @@
+let mylist be [1,2,3]
+out(mylist)
+
+let mylist be [2,3,4]
+out(mylist)
+out(mylist[0])
+
+for i in mylist {
+    out(i)
+}
