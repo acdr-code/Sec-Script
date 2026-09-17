@@ -32,3 +32,6 @@ let result be add(2,3)
 out(result)
 
 out("hello" & good)
+
+let openPorts be SCAN "192.168.56.103" ports 1 :: 1000 delay 0.5
+out(openPorts)

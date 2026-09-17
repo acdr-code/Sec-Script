@@ -84,6 +84,13 @@ class ReturnNode:
     def __init__(self, value):
         self.value = value
 
+class PortScanNode:
+    def __init__(self, ip, start, end, timeout):
+        self.ip = ip
+        self.start = start
+        self.end = end
+        self.timeout = timeout
+
 # ====================== Transformer ======================
 
 class ASTBuilder(Transformer):
@@ -161,6 +168,13 @@ class ASTBuilder(Transformer):
 
     def return_stmt(self, items):
         return ReturnNode(items[0])
+
+    def scan_stmt(self, items):
+        ip = items[0]
+        start = items[1]
+        end = items[2]
+        timeout = items[3]
+        return PortScanNode(ip, start, end, timeout)
 
     def comparison(self, items):
         left, op, right = items

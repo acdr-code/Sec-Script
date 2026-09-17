@@ -1,9 +1,13 @@
 import AST
 import sys
+import threading
+from concurrent.futures import ThreadPoolExecutor
+import SecurityStuff
 
 env_stack = [{}]
 funcEnv = {}
 
+#calling function
 def call_function(node):
     func_def = funcEnv[node.name]
 
@@ -24,6 +28,7 @@ def call_function(node):
 
     env_stack.pop()
     return return_value
+
 
 def evaluate(node):
     if isinstance(node, AST.StringLiteral):
@@ -72,6 +77,22 @@ def evaluate(node):
         if node.name in funcEnv:
             return call_function(node)
         raise TypeError(f"Cannot evaluate function: {node.name}")
+
+    if isinstance(node, AST.PortScanNode):
+        ip = evaluate(node.ip)
+        start = evaluate(node.start)
+        end = evaluate(node.end)
+        timeout = evaluate(node.timeout)
+        
+        open_ports = []
+
+        def scan(port):
+            SecurityStuff.portScan(ip, port, timeout, open_ports)
+
+        with ThreadPoolExecutor(max_workers=150) as executor:
+            executor.map(scan, range(start, end + 1))
+
+        return open_ports
 
     raise TypeError(f"Cannot evaluate: {type(node)}")
 
@@ -142,6 +163,6 @@ def interpret(node):
     elif isinstance(node, AST.ReturnNode):
         value = evaluate(node.value)
         return("RETURN", value)
-
+    
     else:
         print(f"Unknown node type: {type(node)}", file=sys.stderr)

@@ -42,6 +42,8 @@ grammar = r"""
 
     index_access: NAME "[" expr "]"
 
+    scan_stmt: "SCAN" expr "ports" expr "::" expr "delay" expr
+
     comparison: atom COMP_OP atom
     math_ing: atom MATH_OP atom
     connect_ing: atom CONNECT_OP atom
@@ -53,6 +55,7 @@ grammar = r"""
         | NAME
         | index_access
         | func_call
+        | scan_stmt
 
     COMP_OP: "==" | "!=" | "<" | ">" | "<=" | ">="
     MATH_OP: "+" | "-" | "/" | "*"
