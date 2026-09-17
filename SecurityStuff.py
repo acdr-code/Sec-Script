@@ -6,3 +6,4 @@ def portScan(ip, port, timeout, list):
     result = sock.connect_ex((ip, port))
     if result == 0:
         list.append(port)
+    sock.close()
