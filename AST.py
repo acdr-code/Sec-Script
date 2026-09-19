@@ -91,6 +91,11 @@ class PortScanNode:
         self.end = end
         self.timeout = timeout
 
+class WebIndexingNode:
+    def __init__(self, object, site):
+        self.object = object
+        self.site = site
+
 # ====================== Transformer ======================
 
 class ASTBuilder(Transformer):
@@ -175,6 +180,11 @@ class ASTBuilder(Transformer):
         end = items[2]
         timeout = items[3]
         return PortScanNode(ip, start, end, timeout)
+
+    def webindex_stmt(self, items):
+        object = items[0]
+        site = items[1]
+        return WebIndexingNode(object, site)
 
     def comparison(self, items):
         left, op, right = items

@@ -89,10 +89,19 @@ def evaluate(node):
         def scan(port):
             SecurityStuff.portScan(ip, port, timeout, open_ports)
 
-        with ThreadPoolExecutor(max_workers=150) as executor:
+        with ThreadPoolExecutor(max_workers=100) as executor:
             executor.map(scan, range(start, end + 1))
 
         return open_ports
+
+    if isinstance(node, AST.WebIndexingNode):
+        target = evaluate(node.site)
+        objectTofind = evaluate(node.object)
+        found = []
+
+        SecurityStuff.WebIndex(target, objectTofind, found)
+
+        return found
 
     raise TypeError(f"Cannot evaluate: {type(node)}")
 

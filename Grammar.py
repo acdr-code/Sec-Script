@@ -44,6 +44,8 @@ grammar = r"""
 
     scan_stmt: "SCAN" expr "ports" expr "::" expr "delay" expr
 
+    webindex_stmt: "FIND" expr "IN" expr 
+
     comparison: atom COMP_OP atom
     math_ing: atom MATH_OP atom
     connect_ing: atom CONNECT_OP atom
@@ -56,6 +58,7 @@ grammar = r"""
         | index_access
         | func_call
         | scan_stmt
+        | webindex_stmt
 
     COMP_OP: "==" | "!=" | "<" | ">" | "<=" | ">="
     MATH_OP: "+" | "-" | "/" | "*"
