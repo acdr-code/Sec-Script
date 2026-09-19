@@ -34,7 +34,6 @@ out(result)
 out("hello" & good)
 
 let openPorts be SCAN "192.168.56.103" ports 1 :: 1000 delay 0.5
-out(openPorts)
-
 let foundList be FIND "form" IN "http://192.168.56.103/admin"
-out(foundList)
+
+out(foundList & openPorts)
