@@ -25,26 +25,30 @@ grammar = r"""
 
     foreach_stmt: "for" NAME "in" NAME "{" statement+ "}"
 
-    function_stmt: "FUNCTION" NAME "(" params ")" "{" statement+ "}"
+    function_stmt: "function" NAME "(" params ")" "{" statement+ "}"
     params: (NAME ("," NAME)*)?
 
-    return_stmt: "GIVE" expr
+    return_stmt: "give" expr
 
     COMMENT: /\/\/[^\n]*/
+
+    dict: "{" (pair (";" pair)*)? ";"? "}"
+    pair: NAME ":" expr
 
     ?expr: comparison
          | atom
          | list
          | math_ing
          | connect_ing
+         | dict
 
     list: "[" (expr ("," expr)*)? "]"
 
     index_access: NAME "[" expr "]"
 
-    scan_stmt: "SCAN" expr "ports" expr "::" expr "delay" expr
+    scan_stmt: "scan" expr "ports" expr "::" expr "delay" expr
 
-    webindex_stmt: "FIND" expr "IN" expr 
+    webindex_stmt: "find" expr "in" expr
 
     comparison: atom COMP_OP atom
     math_ing: atom MATH_OP atom
@@ -63,8 +67,8 @@ grammar = r"""
     COMP_OP: "==" | "!=" | "<" | ">" | "<=" | ">="
     MATH_OP: "+" | "-" | "/" | "*"
     CONNECT_OP: "&"
-    TRUE: "True"
-    FALSE: "False"
+    TRUE: "true"
+    FALSE: "false"
 
     %import common.CNAME -> NAME
     %import common.NUMBER

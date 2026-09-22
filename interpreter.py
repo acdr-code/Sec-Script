@@ -1,6 +1,5 @@
 import AST
 import sys
-import threading
 from concurrent.futures import ThreadPoolExecutor
 import SecurityStuff
 
@@ -68,8 +67,14 @@ def evaluate(node):
             listEnv.append(evaluate(element))
         return listEnv
 
+    if isinstance(node, AST.DictNode):
+        dictEnv = {}
+        for key, valueNode in node.pairs:
+            dictEnv[key] = evaluate(valueNode)
+        return dictEnv
+
     if isinstance(node, AST.IndexingNode):
-            actualName = env_stack[-1][node.list_name]
+            actualName = env_stack[-1][node.container]
             index = evaluate(node.index)
             return actualName[index]
 

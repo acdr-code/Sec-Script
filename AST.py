@@ -51,9 +51,13 @@ class ListNode:
     def __init__(self, elements):
         self.elements = elements
 
+class DictNode:
+    def __init__(self, pairs):
+        self.pairs = pairs
+
 class IndexingNode:
-    def __init__(self, list_name, index):
-        self.list_name = list_name
+    def __init__(self, container, index):
+        self.container = container
         self.index = index
 
 class ForLoopNode:
@@ -129,6 +133,22 @@ class ASTBuilder(Transformer):
     def list(self, items):
         values = items[:]
         return ListNode(values)
+
+    def pair(self, items):
+        key = str(items[0].name)
+        value = items[1]
+        return (key, value)
+
+    def dict(self, items):
+        pairs = items[:]
+        seen = set()
+
+        for key, value in pairs:
+            if key in seen:
+                raise Exception(f"Key {key} is written more than 1 time")
+            seen.add(key)
+
+        return DictNode(pairs)
 
     def index_access(self, items):
         name = items[0].name
