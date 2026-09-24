@@ -122,6 +122,28 @@ def interpret(node):
         elif node.name in funcEnv:
             return call_function(node)
 
+        elif node.name == "append":
+            if len(node.argument) < 2:
+                print("append() should atleast have 2 arguments", file=sys.stderr)
+            else:
+                container = evaluate(node.argument[0])
+
+                if isinstance(container, list):
+                    if len(node.argument) != 2:
+                        print("For list append, you should have 2 arguments", file=sys.stderr)
+                    value = evaluate(node.argument[1])
+                    container.append(value)
+
+                elif isinstance(container, dict):
+                    if len(node.argument) != 3:
+                        print("For Dict append, you should have 3 arguments (key and value)", file=sys.stderr)
+                    key = evaluate(node.argument[1])
+                    value = evaluate(node.argument[2])
+                    container[key] = value
+
+                else:
+                    print(f"Can't append on {container}, not list or dict format", file=sys.stderr)
+
         else:
             print(f"Unknown function: {node.name}", file=sys.stderr)
 

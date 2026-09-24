@@ -1,2 +1,5 @@
 let simpledict be {Hell: "you"; Please: "go"}
 out(simpledict & simpledict["Hell"])
+
+append(simpledict, "Strict", 5)
+out(simpledict & simpledict["Strict"])
