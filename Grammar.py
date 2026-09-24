@@ -50,6 +50,8 @@ grammar = r"""
 
     webindex_stmt: "find" expr "in" expr
 
+    sniffing_stmt: "sniff" "::"  "iface" expr "count" expr "filter" expr "delay" expr
+
     comparison: atom COMP_OP atom
     math_ing: atom MATH_OP atom
     connect_ing: atom CONNECT_OP atom
@@ -63,6 +65,7 @@ grammar = r"""
         | func_call
         | scan_stmt
         | webindex_stmt
+        | sniffing_stmt
 
     COMP_OP: "==" | "!=" | "<" | ">" | "<=" | ">="
     MATH_OP: "+" | "-" | "/" | "*"

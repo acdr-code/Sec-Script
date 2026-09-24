@@ -21,7 +21,7 @@ def run_file(filepath: str):
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("usage: python main.py <file.secs>", file=sys.stderr)
+        print("usage: python main.py <file.sec>", file=sys.stderr)
         sys.exit(1)
 
     run_file(sys.argv[1])

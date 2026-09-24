@@ -100,6 +100,13 @@ class WebIndexingNode:
         self.object = object
         self.site = site
 
+class SniffingNode:
+    def __init__(self, iface, count, filter, delay):
+        self.iface = iface
+        self.count = count
+        self.filter = filter
+        self.delay = delay
+
 # ====================== Transformer ======================
 
 class ASTBuilder(Transformer):
@@ -205,6 +212,13 @@ class ASTBuilder(Transformer):
         object = items[0]
         site = items[1]
         return WebIndexingNode(object, site)
+
+    def sniffing_stmt(self, items):
+        iface = items[0]
+        count = items[1]
+        filter = items[2]
+        delay = items[3]
+        return SniffingNode(iface=iface, count=count, filter=filter, delay=delay)
 
     def comparison(self, items):
         left, op, right = items

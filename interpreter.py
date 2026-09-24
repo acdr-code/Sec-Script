@@ -108,6 +108,18 @@ def evaluate(node):
 
         return found
 
+    if isinstance(node, AST.SniffingNode):
+        iface = evaluate(node.iface)
+        count = evaluate(node.count)
+        delay = evaluate(node.delay)
+        filter = evaluate(node.filter)
+
+        result = []
+
+        SecurityStuff.SniffRun(iface=iface, count=count, delay=delay, filter=filter, list=result)
+        
+        return result
+
     raise TypeError(f"Cannot evaluate: {type(node)}")
 
 def interpret(node):
