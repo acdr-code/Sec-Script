@@ -10,5 +10,10 @@ out(mylist)
 append(mylist, 5)
 out(mylist)
 
-let PacketList be sniff :: iface "enp3s0" count 10 filter "ALL" delay 1
-out(PacketList)
+out(getMyIfaces())
+let that be getMyIfaces()
+out(that)
+
+out(getMyIp())
+out(myusrname())
+out(netInfo())

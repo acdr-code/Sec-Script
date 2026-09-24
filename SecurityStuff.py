@@ -5,6 +5,7 @@ from scapy.all import sniff, IP, UDP, TCP
 import time
 import datetime
 
+#portscan
 def portScan(ip, port, timeout, list):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.settimeout(timeout)
@@ -13,7 +14,7 @@ def portScan(ip, port, timeout, list):
         list.append(port)
     sock.close()
 
-
+#BetterBs4
 def WebIndex(target, object, list):
     response = requests.get(target, timeout=10)
     response.raise_for_status()
@@ -22,6 +23,8 @@ def WebIndex(target, object, list):
     things = soup.find_all(f"{object}")
     
     list.append(things)
+
+#Sniffing
 def SniffData(packet, delay, list):
     if not packet.haslayer(IP):
         return

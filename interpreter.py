@@ -2,6 +2,8 @@ import AST
 import sys
 from concurrent.futures import ThreadPoolExecutor
 import SecurityStuff
+from scapy.all import get_if_list
+import subprocess
 
 env_stack = [{}]
 funcEnv = {}
@@ -81,6 +83,23 @@ def evaluate(node):
     if isinstance(node, AST.FunctionCallNode):
         if node.name in funcEnv:
             return call_function(node)
+
+        #built-ins
+        if node.name == "getMyIfaces":
+            return get_if_list()
+
+        if node.name == "getMyIp":
+            result =  subprocess.run(["hostname", "-I"], capture_output=True, text=True, check=True)
+            return result.stdout
+
+        if node.name == "myusrname":
+            result = subprocess.run(["whoami"], capture_output=True, text=True, check=True)
+            return result.stdout
+
+        if node.name == "netInfo":
+            result = subprocess.run(["ip", "a"], capture_output=True, text=True, check=True)
+            return result.stdout
+
         raise TypeError(f"Cannot evaluate function: {node.name}")
 
     if isinstance(node, AST.PortScanNode):
@@ -155,7 +174,6 @@ def interpret(node):
 
                 else:
                     print(f"Can't append on {container}, not list or dict format", file=sys.stderr)
-
         else:
             print(f"Unknown function: {node.name}", file=sys.stderr)
 
