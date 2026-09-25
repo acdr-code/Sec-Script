@@ -6,6 +6,7 @@ from scapy.all import get_if_list
 import subprocess
 from errorHandler import SecScriptError
 
+
 #File running
 import os
 from Grammar import parser
@@ -128,6 +129,11 @@ def evaluate(node):
         if node.name in funcEnv:
             return call_function(node)
 
+        #built-in(s)
+        result = SecurityStuff.hedIt(node)
+        if result is not None:
+            return result
+
         if node.name == "getMyIfaces":
             return get_if_list()
 
@@ -227,6 +233,10 @@ def interpret(node):
 
             else:
                 raise SecScriptError(f"Can't append on '{container}', not list or dict format", line=node.line)
+
+        elif node.name in ("hash", "encode", "decode"):
+            SecurityStuff.hedIt(node)
+        
         else:
             raise SecScriptError(f"Unknown function: {node.name}", line=node.line)
 

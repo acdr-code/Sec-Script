@@ -19,4 +19,10 @@ out(that)
 out(getMyIp())
 out(myusrname())
 
-out(resultOne)
+//out(resultOne) // Error and if __name__ is main checking
+
+out(hash("sha256", "loveu"))
+let encodeText be encode("base64", "loveu")
+out(encodeText)
+let decodeText be decode("base64", encodeText)
+out(decodeText)
