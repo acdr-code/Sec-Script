@@ -89,4 +89,4 @@ grammar = r"""
     %ignore COMMENT
 """
 
-parser = Lark(grammar, start="start", parser="lalr")
+parser = Lark(grammar, start="start", parser="lalr", propagate_positions=True)

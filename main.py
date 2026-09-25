@@ -10,4 +10,8 @@ if __name__ == "__main__":
         print("usage: python main.py <file.sec>", file=sys.stderr)
         sys.exit(1)
 
-    interpreter.run_file(sys.argv[1])
+    try:
+        interpreter.run_file(sys.argv[1])
+    except interpreter.SecScriptError as e:
+        print(e, file=sys.stderr)
+        sys.exit(1)

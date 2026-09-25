@@ -1,167 +1,212 @@
 from lark import Transformer
+from lark import v_args
 
 
 # ====================== Nodes ======================
 
-class FunctionCallNode:
-    def __init__(self, name, argument):
+#father
+class ASTNODE:
+    def __init__(self, line=None):
+        self.line = line
+
+
+class FunctionCallNode(ASTNODE):
+    def __init__(self, name, argument, line=None):
+        super().__init__(line)
         self.name = name
         self.argument = argument
 
 
-class LetNode:
-    def __init__(self, name, value):
+class LetNode(ASTNODE):
+    def __init__(self, name, value, line=None):
+        super().__init__(line)
         self.name = name
         self.value = value
 
 
-class IfNode:
-    def __init__(self, condition, then_body, else_body=None):
+class IfNode(ASTNODE):
+    def __init__(self, condition, then_body, else_body=None, line=None):
+        super().__init__(line)
         self.condition = condition
         self.then_body = then_body
         self.else_body = else_body
 
 
-class BinaryOpNode:
-    def __init__(self, left, op, right):
+class BinaryOpNode(ASTNODE):
+    def __init__(self, left, op, right, line=None):
+        super().__init__(line)
         self.left = left
         self.op = op
         self.right = right
 
 
-class StringLiteral:
-    def __init__(self, value):
+class StringLiteral(ASTNODE):
+    def __init__(self, value, line=None):
+        super().__init__(line)
         self.value = value
 
 
-class NumberLiteral:
-    def __init__(self, value):
+class NumberLiteral(ASTNODE):
+    def __init__(self, value, line=None):
+        super().__init__(line)
         self.value = value
 
 
-class BooleanLiteral:
-    def __init__(self, value):
+class BooleanLiteral(ASTNODE):
+    def __init__(self, value, line=None):
+        super().__init__(line)
         self.value = value
 
-class Variable:
-    def __init__(self, name):
+
+class Variable(ASTNODE):
+    def __init__(self, name, line=None):
+        super().__init__(line)
         self.name = name
 
-class ListNode:
-    def __init__(self, elements):
+
+class ListNode(ASTNODE):
+    def __init__(self, elements, line=None):
+        super().__init__(line)
         self.elements = elements
 
-class DictNode:
-    def __init__(self, pairs):
+
+class DictNode(ASTNODE):
+    def __init__(self, pairs, line=None):
+        super().__init__(line)
         self.pairs = pairs
 
-class IndexingNode:
-    def __init__(self, container, index):
+
+class IndexingNode(ASTNODE):
+    def __init__(self, container, index, line=None):
+        super().__init__(line)
         self.container = container
         self.index = index
 
-class ForLoopNode:
-    def __init__(self, var_name, start, end, body):
+
+class ForLoopNode(ASTNODE):
+    def __init__(self, var_name, start, end, body, line=None):
+        super().__init__(line)
         self.var_name = var_name
         self.start = start
         self.end = end
         self.body = body
 
-class ForItemLoopNode:
-    def __init__(self, var_name, list_name, body):
+
+class ForItemLoopNode(ASTNODE):
+    def __init__(self, var_name, list_name, body, line=None):
+        super().__init__(line)
         self.var_name = var_name
         self.list_name = list_name
         self.body = body
 
-class WhileLoopNode:
-    def __init__(self, condition, body):
+
+class WhileLoopNode(ASTNODE):
+    def __init__(self, condition, body, line=None):
+        super().__init__(line)
         self.condition = condition
         self.body = body
 
-class FunctionNode:
-    def __init__(self, name, parametrs, body):
+
+class FunctionNode(ASTNODE):
+    def __init__(self, name, parametrs, body, line=None):
+        super().__init__(line)
         self.name = name
         self.parametrs = parametrs
         self.body = body
 
-class ReturnNode:
-    def __init__(self, value):
+
+class ReturnNode(ASTNODE):
+    def __init__(self, value, line=None):
+        super().__init__(line)
         self.value = value
 
-class PortScanNode:
-    def __init__(self, ip, start, end, timeout):
+
+class PortScanNode(ASTNODE):
+    def __init__(self, ip, start, end, timeout, line=None):
+        super().__init__(line)
         self.ip = ip
         self.start = start
         self.end = end
         self.timeout = timeout
 
-class WebIndexingNode:
-    def __init__(self, object, site):
+
+class WebIndexingNode(ASTNODE):
+    def __init__(self, object, site, line=None):
+        super().__init__(line)
         self.object = object
         self.site = site
 
-class SniffingNode:
-    def __init__(self, iface, count, filter, delay):
+
+class SniffingNode(ASTNODE):
+    def __init__(self, iface, count, filter, delay, line=None):
+        super().__init__(line)
         self.iface = iface
         self.count = count
         self.filter = filter
         self.delay = delay
 
-class ShellNode:
-    def __init__(self, target, password, port, body):
+
+class ShellNode(ASTNODE):
+    def __init__(self, target, password, port, body, line=None):
+        super().__init__(line)
         self.target = target
         self.password = password
         self.port = port
         self.body = body
 
-class ShellRunNode:
-    def __init__(self, command):
+
+class ShellRunNode(ASTNODE):
+    def __init__(self, command, line=None):
+        super().__init__(line)
         self.command = command
 
-class ImportNode:
-    def __init__(self, file):
+
+class ImportNode(ASTNODE):
+    def __init__(self, file, line=None):
+        super().__init__(line)
         self.file = file
+
 
 # ====================== Transformer ======================
 
+@v_args(meta=True)
 class ASTBuilder(Transformer):
 
-    def start(self, items):
+    def start(self, meta, items):
         return items
 
-    def statement(self, items):
+    def statement(self, meta, items):
         return items[0]
 
-    def expr(self, items):
+    def expr(self, meta, items):
         return items[0]
 
-    def func_call(self, items):
+    def func_call(self, meta, items):
         name = items[0].name
         arguments = items[1]
-        return FunctionCallNode(name, arguments)
+        return FunctionCallNode(name, arguments, line=meta.line)
 
-    def args(self, items):
+    def args(self, meta, items):
         values = []
         for item in items:
             values.append(item)
         return values
-    
-    
-    def let_stmt(self, items):
+
+    def let_stmt(self, meta, items):
         name = items[0].name
         value = items[1]
-        return LetNode(name, value)
+        return LetNode(name, value, line=meta.line)
 
-    def list(self, items):
+    def list(self, meta, items):
         values = items[:]
-        return ListNode(values)
+        return ListNode(values, line=meta.line)
 
-    def pair(self, items):
+    def pair(self, meta, items):
         key = str(items[0].name)
         value = items[1]
         return (key, value)
 
-    def dict(self, items):
+    def dict(self, meta, items):
         pairs = items[:]
         seen = set()
 
@@ -170,116 +215,116 @@ class ASTBuilder(Transformer):
                 raise Exception(f"Key {key} is written more than 1 time")
             seen.add(key)
 
-        return DictNode(pairs)
+        return DictNode(pairs, line=meta.line)
 
-    def index_access(self, items):
+    def index_access(self, meta, items):
         name = items[0].name
         value = items[1]
-        return IndexingNode(name, value)
+        return IndexingNode(name, value, line=meta.line)
 
-    def if_stmt(self, items):
+    def if_stmt(self, meta, items):
         condition = items[0]
         then_body = items[1]
         else_body = items[2] if len(items) > 2 else None
-        return IfNode(condition, then_body, else_body)
+        return IfNode(condition, then_body, else_body, line=meta.line)
 
-    def for_stmt(self, items):
+    def for_stmt(self, meta, items):
         var_name = items[0].name
         start = items[1]
         end = items[2]
         body = items[3:]
-        return ForLoopNode(var_name, start, end, body)
+        return ForLoopNode(var_name, start, end, body, line=meta.line)
 
-    def foreach_stmt(self, items):
+    def foreach_stmt(self, meta, items):
         var_name = items[0].name
         list_name = items[1].name
         body = items[2:]
-        return ForItemLoopNode(var_name, list_name, body)
+        return ForItemLoopNode(var_name, list_name, body, line=meta.line)
 
-    def while_stmt(self, items):
+    def while_stmt(self, meta, items):
         condition = items[0]
         body = items[1:]
-        return WhileLoopNode(condition, body)
+        return WhileLoopNode(condition, body, line=meta.line)
 
-    def function_stmt(self, items):
+    def function_stmt(self, meta, items):
         name = items[0].name
         parametrs = items[1]
         body = items[2:]
-        return FunctionNode(name, parametrs, body)
+        return FunctionNode(name, parametrs, body, line=meta.line)
 
-    def params(self, items):
+    def params(self, meta, items):
         values = []
         for item in items:
             values.append(item.name)
         return values
 
-    def return_stmt(self, items):
-        return ReturnNode(items[0])
+    def return_stmt(self, meta, items):
+        return ReturnNode(items[0], line=meta.line)
 
-    def import_stmt(self, items):
+    def import_stmt(self, meta, items):
         path = items[0].value
-        return ImportNode(path)
+        return ImportNode(path, line=meta.line)
 
-    def scan_stmt(self, items):
+    def scan_stmt(self, meta, items):
         ip = items[0]
         start = items[1]
         end = items[2]
         timeout = items[3]
-        return PortScanNode(ip, start, end, timeout)
+        return PortScanNode(ip, start, end, timeout, line=meta.line)
 
-    def webindex_stmt(self, items):
+    def webindex_stmt(self, meta, items):
         object = items[0]
         site = items[1]
-        return WebIndexingNode(object, site)
+        return WebIndexingNode(object, site, line=meta.line)
 
-    def sniffing_stmt(self, items):
+    def sniffing_stmt(self, meta, items):
         iface = items[0]
         count = items[1]
         filter = items[2]
         delay = items[3]
-        return SniffingNode(iface=iface, count=count, filter=filter, delay=delay)
+        return SniffingNode(iface=iface, count=count, filter=filter, delay=delay, line=meta.line)
 
-    def shell_stmt(self, items):
+    def shell_stmt(self, meta, items):
         target = items[0]
         password = items[1]
         port = items[2]
         body = items[3:]
-        return ShellNode(target, password,port, body)
+        return ShellNode(target, password, port, body, line=meta.line)
 
-    def run_ing(self, items):
+    def run_ing(self, meta, items):
         command = items[0]
-        return ShellRunNode(command)
+        return ShellRunNode(command, line=meta.line)
 
-    def comparison(self, items):
+    def comparison(self, meta, items):
         left, op, right = items
-        return BinaryOpNode(left, str(op), right)
+        return BinaryOpNode(left, str(op), right, line=meta.line)
 
-    def math_ing(self, items):
+    def math_ing(self, meta, items):
         left, op, right = items
-        return BinaryOpNode(left, op, right)
+        return BinaryOpNode(left, op, right, line=meta.line)
 
-    def connect_ing(self, items):
+    def connect_ing(self, meta, items):
         left, op, right = items
-        return BinaryOpNode(left, op, right)
+        return BinaryOpNode(left, op, right, line=meta.line)
 
-    def atom(self, items):
+    def atom(self, meta, items):
         return items[0]
 
     # ---------- Literals & Variable ----------
 
     def ESCAPED_STRING(self, token):
-        return StringLiteral(str(token)[1:-1])
+        return StringLiteral(str(token)[1:-1], line=token.line)
 
     def NUMBER(self, token):
         text = str(token)
         value = float(text) if "." in text else int(text)
-        return NumberLiteral(value)
+        return NumberLiteral(value, line=token.line)
 
-    def TRUE(self, _):
-        return BooleanLiteral(True)
+    def TRUE(self, token):
+        return BooleanLiteral(True, line=token.line)
 
-    def FALSE(self, _):
-        return BooleanLiteral(False)
+    def FALSE(self, token):
+        return BooleanLiteral(False, line=token.line)
 
     def NAME(self, token):
-        return Variable(str(token))
+        return Variable(str(token), line=token.line)

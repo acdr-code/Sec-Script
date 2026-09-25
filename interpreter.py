@@ -4,6 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 import SecurityStuff
 from scapy.all import get_if_list
 import subprocess
+from errorHandler import SecScriptError
 
 #File running
 import os
@@ -26,7 +27,6 @@ def run_file(filepath):
     tree = parser.parse(code)
     ast_statements = ASTBuilder().transform(tree)
 
-    #checking if file is imported or not
     is_main = (len(dir_stack) == 0)
     env_stack[-1]["__name__"] = "main" if is_main else "imported"
 
@@ -43,7 +43,6 @@ env_stack = [{}]
 funcEnv = {}
 ssh_sessions = []
 
-#calling function
 def call_function(node):
     func_def = funcEnv[node.name]
 
@@ -79,7 +78,7 @@ def evaluate(node):
     if isinstance(node, AST.Variable):
         if node.name in env_stack[-1]:
             return env_stack[-1][node.name]
-        raise NameError(f"Variable '{node.name}' is not defined")
+        raise SecScriptError(f"Variable '{node.name}' is not defined", line=node.line)
 
     if isinstance(node, AST.BinaryOpNode):
         left = evaluate(node.left)
@@ -94,9 +93,14 @@ def evaluate(node):
         if op == ">=": return left >= right
         if op == "+": return left + right
         if op == "-": return left - right
-        if op == "/": return left / right
+        if op == "/":
+            if right == 0:
+                raise SecScriptError("Division by zero", line=node.line)
+            return left / right
         if op == "*": return left * right
         if op == "&": return str(left) + str(right)
+
+        raise SecScriptError(f"Unknown operator '{op}'", line=node.line)
 
     if isinstance(node, AST.ListNode):
         listEnv = []
@@ -111,20 +115,24 @@ def evaluate(node):
         return dictEnv
 
     if isinstance(node, AST.IndexingNode):
-            actualName = env_stack[-1][node.container]
-            index = evaluate(node.index)
+        if node.container not in env_stack[-1]:
+            raise SecScriptError(f"Variable '{node.container}' is not defined", line=node.line)
+        actualName = env_stack[-1][node.container]
+        index = evaluate(node.index)
+        try:
             return actualName[index]
+        except (KeyError, IndexError):
+            raise SecScriptError(f"Index/key '{index}' not found in '{node.container}'", line=node.line)
 
     if isinstance(node, AST.FunctionCallNode):
         if node.name in funcEnv:
             return call_function(node)
 
-        #built-ins
         if node.name == "getMyIfaces":
             return get_if_list()
 
         if node.name == "getMyIp":
-            result =  subprocess.run(["hostname", "-I"], capture_output=True, text=True, check=True)
+            result = subprocess.run(["hostname", "-I"], capture_output=True, text=True, check=True)
             return result.stdout
 
         if node.name == "myusrname":
@@ -135,14 +143,14 @@ def evaluate(node):
             result = subprocess.run(["ip", "a"], capture_output=True, text=True, check=True)
             return result.stdout
 
-        raise TypeError(f"Cannot evaluate function: {node.name}")
+        raise SecScriptError(f"Cannot evaluate function: {node.name}", line=node.line)
 
     if isinstance(node, AST.PortScanNode):
         ip = evaluate(node.ip)
         start = evaluate(node.start)
         end = evaluate(node.end)
         timeout = evaluate(node.timeout)
-        
+
         open_ports = []
 
         def scan(port):
@@ -171,19 +179,20 @@ def evaluate(node):
         result = []
 
         SecurityStuff.SniffRun(iface=iface, count=count, delay=delay, filter=filter, list=result)
-        
+
         return result
 
     if isinstance(node, AST.ShellRunNode):
         if not ssh_sessions:
-            raise RuntimeError("run statement is used outside of connecting function")
+            raise SecScriptError("run statement is used outside of connecting function", line=node.line)
 
         client = ssh_sessions[-1]
         command = evaluate(node.command)
 
         return SecurityStuff.RunSsh(client=client, command=command)
-    
-    raise TypeError(f"Cannot evaluate: {type(node)}")
+
+    raise SecScriptError(f"Cannot evaluate: {type(node).__name__}", line=getattr(node, "line", None))
+
 
 def interpret(node):
     if isinstance(node, AST.FunctionCallNode):
@@ -199,27 +208,27 @@ def interpret(node):
 
         elif node.name == "append":
             if len(node.argument) < 2:
-                print("append() should atleast have 2 arguments", file=sys.stderr)
+                raise SecScriptError("append() should have at least 2 arguments", line=node.line)
+
+            container = evaluate(node.argument[0])
+
+            if isinstance(container, list):
+                if len(node.argument) != 2:
+                    raise SecScriptError("For list append, you should have 2 arguments", line=node.line)
+                value = evaluate(node.argument[1])
+                container.append(value)
+
+            elif isinstance(container, dict):
+                if len(node.argument) != 3:
+                    raise SecScriptError("For dict append, you should have 3 arguments (key and value)", line=node.line)
+                key = evaluate(node.argument[1])
+                value = evaluate(node.argument[2])
+                container[key] = value
+
             else:
-                container = evaluate(node.argument[0])
-
-                if isinstance(container, list):
-                    if len(node.argument) != 2:
-                        print("For list append, you should have 2 arguments", file=sys.stderr)
-                    value = evaluate(node.argument[1])
-                    container.append(value)
-
-                elif isinstance(container, dict):
-                    if len(node.argument) != 3:
-                        print("For Dict append, you should have 3 arguments (key and value)", file=sys.stderr)
-                    key = evaluate(node.argument[1])
-                    value = evaluate(node.argument[2])
-                    container[key] = value
-
-                else:
-                    print(f"Can't append on {container}, not list or dict format", file=sys.stderr)
+                raise SecScriptError(f"Can't append on '{container}', not list or dict format", line=node.line)
         else:
-            print(f"Unknown function: {node.name}", file=sys.stderr)
+            raise SecScriptError(f"Unknown function: {node.name}", line=node.line)
 
     elif isinstance(node, AST.LetNode):
         value = evaluate(node.value)
@@ -251,6 +260,8 @@ def interpret(node):
                     return result
 
     elif isinstance(node, AST.ForItemLoopNode):
+        if node.list_name not in env_stack[-1]:
+            raise SecScriptError(f"Variable '{node.list_name}' is not defined", line=node.line)
         list_name = env_stack[-1][node.list_name]
 
         for item in list_name:
@@ -272,7 +283,7 @@ def interpret(node):
 
     elif isinstance(node, AST.ReturnNode):
         value = evaluate(node.value)
-        return("RETURN", value)
+        return ("RETURN", value)
 
     elif isinstance(node, AST.ImportNode):
         filename = node.file
@@ -296,6 +307,6 @@ def interpret(node):
         finally:
             SecurityStuff.CloseSsh(client)
             ssh_sessions.pop()
-    
+
     else:
-        print(f"Unknown node type: {type(node)}", file=sys.stderr)
+        raise SecScriptError(f"Unknown node type: {type(node).__name__}", line=getattr(node, "line", None))
