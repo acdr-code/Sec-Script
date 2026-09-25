@@ -7,6 +7,7 @@ import subprocess
 
 env_stack = [{}]
 funcEnv = {}
+ssh_sessions = []
 
 #calling function
 def call_function(node):
@@ -139,6 +140,15 @@ def evaluate(node):
         
         return result
 
+    if isinstance(node, AST.ShellRunNode):
+        if not ssh_sessions:
+            raise RuntimeError("run statement is used outside of connecting function")
+
+        client = ssh_sessions[-1]
+        command = evaluate(node.command)
+
+        return SecurityStuff.RunSsh(client=client, command=command)
+    
     raise TypeError(f"Cannot evaluate: {type(node)}")
 
 def interpret(node):
@@ -229,6 +239,23 @@ def interpret(node):
     elif isinstance(node, AST.ReturnNode):
         value = evaluate(node.value)
         return("RETURN", value)
+
+    elif isinstance(node, AST.ShellNode):
+        target = evaluate(node.target)
+        password = evaluate(node.password)
+        port = evaluate(node.port)
+
+        client = SecurityStuff.ConnectSsh(target=target, password=password, port=port)
+        ssh_sessions.append(client)
+
+        try:
+            for stmt in node.body:
+                result = interpret(stmt)
+                if result is not None and result[0] == "RETURN":
+                    return result
+        finally:
+            SecurityStuff.CloseSsh(client)
+            ssh_sessions.pop()
     
     else:
         print(f"Unknown node type: {type(node)}", file=sys.stderr)

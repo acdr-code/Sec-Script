@@ -16,4 +16,9 @@ out(that)
 
 out(getMyIp())
 out(myusrname())
-out(netInfo())
+
+sshConnect "maryam@192.168.56.103" password "abc123" on port 22 {
+    let resultOne be run "whoami"
+}
+
+out(resultOne)

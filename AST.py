@@ -63,7 +63,7 @@ class IndexingNode:
 class ForLoopNode:
     def __init__(self, var_name, start, end, body):
         self.var_name = var_name
-        self. start = start
+        self.start = start
         self.end = end
         self.body = body
 
@@ -106,6 +106,17 @@ class SniffingNode:
         self.count = count
         self.filter = filter
         self.delay = delay
+
+class ShellNode:
+    def __init__(self, target, password, port, body):
+        self.target = target
+        self.password = password
+        self.port = port
+        self.body = body
+
+class ShellRunNode:
+    def __init__(self, command):
+        self.command = command
 
 # ====================== Transformer ======================
 
@@ -219,6 +230,17 @@ class ASTBuilder(Transformer):
         filter = items[2]
         delay = items[3]
         return SniffingNode(iface=iface, count=count, filter=filter, delay=delay)
+
+    def shell_stmt(self, items):
+        target = items[0]
+        password = items[1]
+        port = items[2]
+        body = items[3:]
+        return ShellNode(target, password,port, body)
+
+    def run_ing(self, items):
+        command = items[0]
+        return ShellRunNode(command)
 
     def comparison(self, items):
         left, op, right = items

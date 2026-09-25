@@ -11,6 +11,7 @@ grammar = r"""
              | while_stmt
              | function_stmt
              | return_stmt
+             | shell_stmt
 
     if_stmt: "if" "(" expr ")" "{" statement+ "}" ["else" "{" statement+ "}"]
 
@@ -52,6 +53,9 @@ grammar = r"""
 
     sniffing_stmt: "sniff" "::"  "iface" expr "count" expr "filter" expr "delay" expr
 
+    shell_stmt: "sshConnect" expr "password" expr "on" "port" expr "{" statement+ "}"
+    run_ing: "run" expr
+
     comparison: atom COMP_OP atom
     math_ing: atom MATH_OP atom
     connect_ing: atom CONNECT_OP atom
@@ -66,6 +70,7 @@ grammar = r"""
         | scan_stmt
         | webindex_stmt
         | sniffing_stmt
+        | run_ing
 
     COMP_OP: "==" | "!=" | "<" | ">" | "<=" | ">="
     MATH_OP: "+" | "-" | "/" | "*"
