@@ -12,6 +12,7 @@ grammar = r"""
              | function_stmt
              | return_stmt
              | shell_stmt
+             | import_stmt
 
     if_stmt: "if" "(" expr ")" "{" statement+ "}" ["else" "{" statement+ "}"]
 
@@ -30,6 +31,8 @@ grammar = r"""
     params: (NAME ("," NAME)*)?
 
     return_stmt: "give" expr
+
+    import_stmt: "include" ESCAPED_STRING
 
     COMMENT: /\/\/[^\n]*/
 

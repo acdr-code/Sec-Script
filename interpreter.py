@@ -5,6 +5,40 @@ import SecurityStuff
 from scapy.all import get_if_list
 import subprocess
 
+#File running
+import os
+from Grammar import parser
+from AST import ASTBuilder
+
+imported_files = set()
+dir_stack = []
+
+def run_file(filepath):
+    abs_path = os.path.abspath(filepath)
+
+    if abs_path in imported_files:
+        return
+    imported_files.add(abs_path)
+
+    with open(abs_path, "r", encoding="utf-8") as f:
+        code = f.read()
+
+    tree = parser.parse(code)
+    ast_statements = ASTBuilder().transform(tree)
+
+    #checking if file is imported or not
+    is_main = (len(dir_stack) == 0)
+    env_stack[-1]["__name__"] = "main" if is_main else "imported"
+
+    dir_stack.append(os.path.dirname(abs_path))
+    try:
+        for stmt in ast_statements:
+            interpret(stmt)
+    finally:
+        dir_stack.pop()
+
+
+#interpreter starts
 env_stack = [{}]
 funcEnv = {}
 ssh_sessions = []
@@ -239,6 +273,12 @@ def interpret(node):
     elif isinstance(node, AST.ReturnNode):
         value = evaluate(node.value)
         return("RETURN", value)
+
+    elif isinstance(node, AST.ImportNode):
+        filename = node.file
+        current_dir = dir_stack[-1] if dir_stack else os.getcwd()
+        target_path = os.path.join(current_dir, filename)
+        run_file(target_path)
 
     elif isinstance(node, AST.ShellNode):
         target = evaluate(node.target)

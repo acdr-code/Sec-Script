@@ -118,6 +118,10 @@ class ShellRunNode:
     def __init__(self, command):
         self.command = command
 
+class ImportNode:
+    def __init__(self, file):
+        self.file = file
+
 # ====================== Transformer ======================
 
 class ASTBuilder(Transformer):
@@ -211,6 +215,10 @@ class ASTBuilder(Transformer):
 
     def return_stmt(self, items):
         return ReturnNode(items[0])
+
+    def import_stmt(self, items):
+        path = items[0].value
+        return ImportNode(path)
 
     def scan_stmt(self, items):
         ip = items[0]

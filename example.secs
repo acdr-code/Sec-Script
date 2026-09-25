@@ -1,3 +1,5 @@
+include "importtest.secs"
+
 let simpledict be {Hell: "you"; Please: "go"}
 out(simpledict & simpledict["Hell"])
 
@@ -16,9 +18,5 @@ out(that)
 
 out(getMyIp())
 out(myusrname())
-
-sshConnect "maryam@192.168.56.103" password "abc123" on port 22 {
-    let resultOne be run "whoami"
-}
 
 out(resultOne)
