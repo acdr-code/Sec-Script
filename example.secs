@@ -26,3 +26,6 @@ let encodeText be encode("base64", "loveu")
 out(encodeText)
 let decodeText be decode("base64", encodeText)
 out(decodeText)
+
+out(localtime())
+out(unixtime())

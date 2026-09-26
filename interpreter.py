@@ -5,6 +5,8 @@ import SecurityStuff
 from scapy.all import get_if_list
 import subprocess
 from errorHandler import SecScriptError
+import time
+from datetime import datetime, timezone
 
 
 #File running
@@ -130,24 +132,39 @@ def evaluate(node):
             return call_function(node)
 
         #built-in(s)
+        #hashing
         result = SecurityStuff.hedIt(node)
         if result is not None:
             return result
 
+        #get iface
         if node.name == "getMyIfaces":
             return get_if_list()
 
+        #get ip
         if node.name == "getMyIp":
             result = subprocess.run(["hostname", "-I"], capture_output=True, text=True, check=True)
             return result.stdout
 
+        #get uersname
         if node.name == "myusrname":
             result = subprocess.run(["whoami"], capture_output=True, text=True, check=True)
             return result.stdout
 
+        #get netinfo
         if node.name == "netInfo":
             result = subprocess.run(["ip", "a"], capture_output=True, text=True, check=True)
             return result.stdout
+
+        #time elements
+        if node.name == "localtime":
+            return datetime.now()
+
+        if node.name == "utctime":
+            return datetime.now(timezone.utc)
+
+        if node.name == "unixtime":
+            return time.time()
 
         raise SecScriptError(f"Cannot evaluate function: {node.name}", line=node.line)
 
