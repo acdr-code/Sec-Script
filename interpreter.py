@@ -7,6 +7,7 @@ import subprocess
 from errorHandler import SecScriptError
 import time
 from datetime import datetime, timezone
+from convertTypes import convert
 
 
 #File running
@@ -72,7 +73,10 @@ def evaluate(node):
     if isinstance(node, AST.StringLiteral):
         return node.value
 
-    if isinstance(node, AST.NumberLiteral):
+    if isinstance(node, AST.IntLiteral):
+        return node.value
+
+    if isinstance(node, AST.FloatLiteral):
         return node.value
 
     if isinstance(node, AST.BooleanLiteral):
@@ -133,9 +137,14 @@ def evaluate(node):
 
         #built-in(s)
         #hashing
-        result = SecurityStuff.hedIt(node)
-        if result is not None:
-            return result
+        hashResult = SecurityStuff.hedIt(node)
+        if hashResult is not None:
+            return hashResult
+
+        #type change
+        typechangeResult = convert(node)
+        if typechangeResult is not None:
+            return typechangeResult
 
         #get iface
         if node.name == "getMyIfaces":
@@ -253,6 +262,9 @@ def interpret(node):
 
         elif node.name in ("hash", "encode", "decode"):
             SecurityStuff.hedIt(node)
+
+        elif node.name in ("string", "float", "bool", "int"):
+            convert(node)
         
         else:
             raise SecScriptError(f"Unknown function: {node.name}", line=node.line)

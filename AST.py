@@ -46,11 +46,15 @@ class StringLiteral(ASTNODE):
         self.value = value
 
 
-class NumberLiteral(ASTNODE):
+class IntLiteral(ASTNODE):
     def __init__(self, value, line=None):
         super().__init__(line)
         self.value = value
 
+class FloatLiteral(ASTNODE):
+    def __init__(self, value, line=None):
+        super().__init__(line)
+        self.value = value
 
 class BooleanLiteral(ASTNODE):
     def __init__(self, value, line=None):
@@ -315,10 +319,15 @@ class ASTBuilder(Transformer):
     def ESCAPED_STRING(self, token):
         return StringLiteral(str(token)[1:-1], line=token.line)
 
-    def NUMBER(self, token):
+    def INT_NUMBER(self, token):
         text = str(token)
-        value = float(text) if "." in text else int(text)
-        return NumberLiteral(value, line=token.line)
+        value = int(text)
+        return IntLiteral(value, line=token.line)
+
+    def FLOAT_NUMBER(self, token):
+        text = str(token)
+        value = float(text)
+        return FloatLiteral(value, line=token.line)
 
     def TRUE(self, token):
         return BooleanLiteral(True, line=token.line)

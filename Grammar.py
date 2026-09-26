@@ -63,7 +63,8 @@ grammar = r"""
     math_ing: atom MATH_OP atom
     connect_ing: atom CONNECT_OP atom
 
-    atom: NUMBER
+    atom: INT_NUMBER
+        | FLOAT_NUMBER
         | ESCAPED_STRING
         | TRUE
         | FALSE
@@ -82,7 +83,8 @@ grammar = r"""
     FALSE: "false"
 
     %import common.CNAME -> NAME
-    %import common.NUMBER
+    %import common.INT -> INT_NUMBER
+    %import common.FLOAT -> FLOAT_NUMBER
     %import common.ESCAPED_STRING
     %import common.WS
     %ignore WS
