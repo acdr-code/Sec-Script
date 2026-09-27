@@ -141,6 +141,11 @@ def evaluate(node):
         if hashResult is not None:
             return hashResult
 
+        #http request - response
+        httpRequestResult = SecurityStuff.httpRequest(node)
+        if httpRequestResult is not None:
+            return httpRequestResult
+
         #type change
         typechangeResult = convert(node)
         if typechangeResult is not None:
@@ -265,6 +270,9 @@ def interpret(node):
 
         elif node.name in ("string", "float", "bool", "int"):
             convert(node)
+
+        elif node.name == "httpRequest":
+            SecurityStuff.httpRequest(node)
         
         else:
             raise SecScriptError(f"Unknown function: {node.name}", line=node.line)
