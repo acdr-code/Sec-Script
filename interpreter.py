@@ -293,6 +293,18 @@ def interpret(node):
             else:
                 raise SecScriptError(f"Can't clear '{container}', not list or dict format", line=node.line)
 
+        elif node.name == "removeLast":
+            if len(node.argument) != 1:
+                raise SecScriptError("removeLast() function only gets one argument", line=node.line)
+
+            container = evaluate(node.argument[0])
+
+            if isinstance(container, list):
+                container.pop()
+
+            else:
+                raise SecScriptError(f"Can't removeList '{container}', not list format", line=node.line)
+
         #evaluate included functions
         elif node.name == "out":
             value = evaluate(node.argument[0])
