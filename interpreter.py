@@ -238,17 +238,8 @@ def evaluate(node):
 
 def interpret(node):
     if isinstance(node, AST.FunctionCallNode):
-        if node.name == "out":
-            value = evaluate(node.argument[0])
-            print(value)
-        elif node.name == "in":
-            if isinstance(node.argument[0], AST.Variable):
-                user_input = input()
-                env_stack[-1][node.argument[0].name] = user_input
-        elif node.name in funcEnv:
-            return call_function(node)
-
-        elif node.name == "append":
+        #not evaluate function:
+        if node.name == "append":
             if len(node.argument) < 2:
                 raise SecScriptError("append() should have at least 2 arguments", line=node.line)
 
@@ -269,6 +260,49 @@ def interpret(node):
 
             else:
                 raise SecScriptError(f"Can't append on '{container}', not list or dict format", line=node.line)
+
+        elif node.name == "remove":
+            if len(node.argument) != 2:
+                raise SecScriptError("remove() should have only 2 arguments", line=node.line)
+
+            container = evaluate(node.argument[0])
+
+            if isinstance(container, list):
+                value = evaluate(node.argument[1])
+                container.remove(value)
+
+            elif isinstance(container, dict):
+                keyValue = evaluate(node.argument[1])
+                del container[keyValue]
+
+            else:
+                raise SecScriptError(f"Can't append on '{container}', not list or dict format", line=node.line)
+
+        elif node.name == "clear":
+            if len(node.argument) != 1:
+                raise SecScriptError("clear() function only gets one argument", line=node.line)
+
+            container = evaluate(node.argument[0])
+
+            if isinstance(container, dict):
+                container.clear()
+
+            elif isinstance(container, list):
+                del container[:]
+
+            else:
+                raise SecScriptError(f"Can't clear '{container}', not list or dict format", line=node.line)
+
+        #evaluate included functions
+        elif node.name == "out":
+            value = evaluate(node.argument[0])
+            print(value)
+        elif node.name == "in":
+            if isinstance(node.argument[0], AST.Variable):
+                user_input = input()
+                env_stack[-1][node.argument[0].name] = user_input
+        elif node.name in funcEnv:
+            return call_function(node)
 
         elif node.name == "length":
             if len(node.argument) != 1:

@@ -1,5 +1,3 @@
-include "importtest.secs"
-
 let simpledict be {Hell: "you"; Please: "go"}
 out(simpledict & simpledict["Hell"])
 
@@ -37,3 +35,13 @@ out(bool(""))
 //out(response)
 
 out(length(mylist))
+
+let exampleList be [1, 2, 4]
+out(exampleList)
+append(exampleList, 4)
+out(exampleList)
+remove(exampleList, 4)
+out(exampleList)
+clear(exampleList)
+out(exampleList)
+out(length(exampleList))
