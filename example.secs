@@ -33,5 +33,7 @@ out(unixtime())
 out(int(unixtime()))
 out(bool(""))
 
-let response be httpRequest("get", "http://google.com", "text")
-out(response)
+//let response be httpRequest("get", "http://google.com", "text")
+//out(response)
+
+out(length(mylist))

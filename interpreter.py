@@ -151,6 +151,11 @@ def evaluate(node):
         if typechangeResult is not None:
             return typechangeResult
 
+        #dict, list -- length
+        if node.name == "length":
+            container = evaluate(node.argument[0])
+            return len(container)
+
         #get iface
         if node.name == "getMyIfaces":
             return get_if_list()
@@ -264,6 +269,18 @@ def interpret(node):
 
             else:
                 raise SecScriptError(f"Can't append on '{container}', not list or dict format", line=node.line)
+
+        elif node.name == "length":
+            if len(node.argument) != 1:
+                raise SecScriptError("length() only gets 1 argument", line=node.line)
+
+            container = evaluate(node.argument[0])
+
+            if isinstance(container, list) or isinstance(container, dict):
+                return len(container)
+
+            else:
+                raise SecScriptError(f"Can't get length of '{container}', not list or dict format", line=node.line)
 
         elif node.name in ("hash", "encode", "decode"):
             SecurityStuff.hedIt(node)
