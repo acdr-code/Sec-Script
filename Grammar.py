@@ -13,6 +13,8 @@ grammar = r"""
              | return_stmt
              | shell_stmt
              | import_stmt
+             | write
+             | writeend
 
     if_stmt: "if" "(" expr ")" "{" statement+ "}" ["else" "{" statement+ "}"]
 
@@ -33,6 +35,10 @@ grammar = r"""
     return_stmt: "give" expr
 
     import_stmt: "include" ESCAPED_STRING
+
+    write: "write" expr "to" expr
+
+    writeend: "writeend" expr "to" expr
 
     COMMENT: /\/\/[^\n]*/
 
@@ -63,6 +69,12 @@ grammar = r"""
     math_ing: atom MATH_OP atom
     connect_ing: atom CONNECT_OP atom
 
+    read: "read" expr
+
+    readlines: "readlines" expr
+
+    exists: "exists" expr
+
     atom: INT_NUMBER
         | FLOAT_NUMBER
         | ESCAPED_STRING
@@ -75,6 +87,9 @@ grammar = r"""
         | webindex_stmt
         | sniffing_stmt
         | run_ing
+        | read
+        | readlines
+        | exists
 
     COMP_OP: "==" | "!=" | "<" | ">" | "<=" | ">="
     MATH_OP: "+" | "-" | "/" | "*"

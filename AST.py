@@ -170,6 +170,34 @@ class ImportNode(ASTNODE):
         super().__init__(line)
         self.file = file
 
+#file-stuff
+class SimpleWriteNode(ASTNODE):
+    def __init__(self, container, file, line=None):
+        super().__init__(line)
+        self.container = container
+        self.file = file
+
+class WriteEndNode(ASTNODE):
+    def __init__(self, container, file, line=None):
+        super().__init__(line)
+        self.container = container
+        self.file = file
+
+class SimpleReadNode(ASTNODE):
+    def __init__(self, file, line=None):
+        super().__init__(line)
+        self.file = file
+
+class ReadLinesNode(ASTNODE):
+    def __init__(self, file, line=None):
+        super().__init__(line)
+        self.file = file
+
+class FileExistsNode(ASTNODE):
+    def __init__(self, file, line=None):
+        super().__init__(line)
+        self.file = file
+    
 
 # ====================== Transformer ======================
 
@@ -294,6 +322,30 @@ class ASTBuilder(Transformer):
         port = items[2]
         body = items[3:]
         return ShellNode(target, password, port, body, line=meta.line)
+
+    #file-stuff
+    def write(self, meta, items):
+        container = items[0]
+        fileName = items[1]
+        return SimpleWriteNode(container=container, file=fileName, line=meta.line)
+
+    def writeend(self, meta, items):
+        container = items[0]
+        fileName = items[1]
+        return WriteEndNode(container=container, file=fileName, line=meta.line)
+
+    def read(self, meta, items):
+        fileName = items[0]
+        return SimpleReadNode(file=fileName, line=meta.line)
+
+    def readlines(self, meta, items):
+        fileName = items[0]
+        return ReadLinesNode(file=fileName, line=meta.line)
+
+    def exists(self, meta, items):
+        fileName = items[0]
+        return FileExistsNode(file=fileName, line=meta.line)
+
 
     def run_ing(self, meta, items):
         command = items[0]

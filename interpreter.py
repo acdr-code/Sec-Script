@@ -8,6 +8,9 @@ from errorHandler import SecScriptError
 import time
 from datetime import datetime, timezone
 from convertTypes import convert
+import fileHandel
+import os
+from pathResolver import resolve_path
 
 
 #File running
@@ -40,7 +43,6 @@ def run_file(filepath):
             interpret(stmt)
     finally:
         dir_stack.pop()
-
 
 #interpreter starts
 env_stack = [{}]
@@ -233,12 +235,20 @@ def evaluate(node):
 
         return SecurityStuff.RunSsh(client=client, command=command)
 
+    if isinstance(node, AST.FileExistsNode):
+        return fileHandel.FileExists(resolve_path(node))
+
+    if isinstance(node, AST.SimpleReadNode):
+        return fileHandel.WholeFileRead(resolve_path(node))
+
+    if isinstance(node, AST.ReadLinesNode):
+        return fileHandel.LineFileRead(resolve_path(node))
+
     raise SecScriptError(f"Cannot evaluate: {type(node).__name__}", line=getattr(node, "line", None))
 
 
 def interpret(node):
     if isinstance(node, AST.FunctionCallNode):
-        #not evaluate function:
         if node.name == "append":
             if len(node.argument) < 2:
                 raise SecScriptError("append() should have at least 2 arguments", line=node.line)
@@ -303,9 +313,8 @@ def interpret(node):
                 container.pop()
 
             else:
-                raise SecScriptError(f"Can't removeList '{container}', not list format", line=node.line)
-
-        #evaluate included functions
+                raise SecScriptError(f"Can't removeList '{container}', not list format", line=node.line)\
+                
         elif node.name == "out":
             value = evaluate(node.argument[0])
             print(value)
@@ -417,6 +426,26 @@ def interpret(node):
         finally:
             SecurityStuff.CloseSsh(client)
             ssh_sessions.pop()
+
+    elif isinstance(node, AST.SimpleWriteNode):
+        try:
+            path = resolve_path(node)
+            writeObject = evaluate(node.container)
+
+            return fileHandel.FileWrite(path=path, writeObj=writeObject, mode="w")
+
+        except Exception:
+            raise SecScriptError(f"Error while requesting to write the file at path -> {path}", line=node.line)
+
+    elif isinstance(node, AST.WriteEndNode):
+        try:
+            path = resolve_path(node)
+            writeObject = evaluate(node.container)
+
+            return fileHandel.FileWrite(path=path, mode="a", writeObj=writeObject)
+
+        except Exception:
+            raise SecScriptError(f"Error while requesting to write the file at path -> {path}", line=node.line)
 
     else:
         raise SecScriptError(f"Unknown node type: {type(node).__name__}", line=getattr(node, "line", None))
