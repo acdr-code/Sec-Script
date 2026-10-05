@@ -7,6 +7,7 @@ import datetime
 import paramiko
 import hashlib, base64, binascii, urllib.parse
 from errorHandler import SecScriptError
+import dns.resolver
 
 #portscan
 def portScan(ip, port, timeout, list):
@@ -194,7 +195,6 @@ def hedIt(node):
     return None
 
 #http request handeling
-#main handler
 def httpRequest(node):
     from interpreter import evaluate
     if node.name == "httpRequest":
@@ -250,3 +250,36 @@ def httpRequest(node):
             raise SecScriptError("Error in handling http request", line=node.line)
 
     return None
+
+#Dns record
+def dnsRecords(node):
+    from interpreter import evaluate
+    import dns.resolver
+
+    domain = evaluate(node.ip)
+    record = evaluate(node.record)
+
+    allRecordType = ["A", "AAAA", "MX", "NS", "TXT", "CNAME", "SOA", "SRV", "CAA", "PTR"]
+
+    if record in allRecordType:
+        try:
+            answers = dns.resolver.resolve(domain, record)
+            results = [rdata.to_text() for rdata in answers]
+        except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN,
+                dns.resolver.NoNameservers, dns.exception.Timeout):
+            results = []
+
+    elif record == "ALL":
+        results = {}
+        for rtype in allRecordType:
+            try:
+                answers = dns.resolver.resolve(domain, rtype)
+                results[rtype] = [rdata.to_text() for rdata in answers]
+            except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN,
+                    dns.resolver.NoNameservers, dns.exception.Timeout):
+                pass
+
+    else:
+        raise SecScriptError("Unknown DNS record wanted", line=node.line)
+
+    return results

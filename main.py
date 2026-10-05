@@ -12,6 +12,6 @@ if __name__ == "__main__":
 
     try:
         interpreter.run_file(sys.argv[1])
-    except interpreter.SecScriptError as e:
+    except interpreter.SecScriptError as e: #for debug mode, in publish mode, this will change to all specific errors
         print(e, file=sys.stderr)
         sys.exit(1)

@@ -11,9 +11,6 @@ from convertTypes import convert
 import fileHandel
 import os
 from pathResolver import resolve_path
-
-
-#File running
 import os
 from Grammar import parser
 from AST import ASTBuilder
@@ -243,6 +240,9 @@ def evaluate(node):
 
     if isinstance(node, AST.ReadLinesNode):
         return fileHandel.LineFileRead(resolve_path(node))
+
+    if isinstance(node, AST.DnsNode):
+        return SecurityStuff.dnsRecords(node)
 
     raise SecScriptError(f"Cannot evaluate: {type(node).__name__}", line=getattr(node, "line", None))
 

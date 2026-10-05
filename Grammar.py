@@ -75,6 +75,10 @@ grammar = r"""
 
     exists: "exists" expr
 
+    dns: "dns" expr "record" expr
+
+    subdomains: "subdomains" expr "usingFile" expr
+
     atom: INT_NUMBER
         | FLOAT_NUMBER
         | ESCAPED_STRING
@@ -90,6 +94,8 @@ grammar = r"""
         | read
         | readlines
         | exists
+        | dns
+        | subdomains
 
     COMP_OP: "==" | "!=" | "<" | ">" | "<=" | ">="
     MATH_OP: "+" | "-" | "/" | "*"
@@ -106,4 +112,4 @@ grammar = r"""
     %ignore COMMENT
 """
 
-parser = Lark(grammar, start="start", parser="lalr", propagate_positions=True)
+parser = Lark(grammar, start="start", parser="lalr", propagate_positions=True) 

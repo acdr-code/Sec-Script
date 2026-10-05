@@ -197,6 +197,18 @@ class FileExistsNode(ASTNODE):
     def __init__(self, file, line=None):
         super().__init__(line)
         self.file = file
+
+class DnsNode(ASTNODE):
+    def __init__(self, ip, record, line=None):
+        super().__init__(line)
+        self.ip = ip
+        self.record = record
+
+class SubDomNode(ASTNODE):
+    def __init__(self, ip, wordlist, line=None):
+        super().__init__(line)
+        self.ip = ip
+        self.wordlist = wordlist\
     
 
 # ====================== Transformer ======================
@@ -346,6 +358,15 @@ class ASTBuilder(Transformer):
         fileName = items[0]
         return FileExistsNode(file=fileName, line=meta.line)
 
+    def dns(self, meta, items):
+        ipObj = items[0]
+        recordObj = items[1]
+        return DnsNode(ip=ipObj, record=recordObj, line=meta.line)
+
+    def subdomains(self, meta, items):
+        ipObj = items[0]
+        wordlistObj = items[1]
+        return SubDomNode(ip=ipObj, wordlist=wordlistObj, line=meta.line)
 
     def run_ing(self, meta, items):
         command = items[0]
