@@ -77,8 +77,6 @@ grammar = r"""
 
     dns: "dns" expr "record" expr
 
-    subdomains: "subdomains" expr "usingFile" expr
-
     atom: INT_NUMBER
         | FLOAT_NUMBER
         | ESCAPED_STRING
@@ -95,7 +93,6 @@ grammar = r"""
         | readlines
         | exists
         | dns
-        | subdomains
 
     COMP_OP: "==" | "!=" | "<" | ">" | "<=" | ">="
     MATH_OP: "+" | "-" | "/" | "*"

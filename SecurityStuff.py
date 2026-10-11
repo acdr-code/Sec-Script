@@ -7,7 +7,6 @@ import datetime
 import paramiko
 import hashlib, base64, binascii, urllib.parse
 from errorHandler import SecScriptError
-import dns.resolver
 
 #portscan
 def portScan(ip, port, timeout, list):
@@ -283,3 +282,4 @@ def dnsRecords(node):
         raise SecScriptError("Unknown DNS record wanted", line=node.line)
 
     return results
+
