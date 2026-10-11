@@ -324,8 +324,12 @@ def interpret(node):
                 raise SecScriptError(f"Can't removeList '{container}', not list format", line=node.line)\
                 
         elif node.name == "out":
-            value = evaluate(node.argument[0])
+            if len(node.argument) > 0:
+                value = evaluate(node.argument[0])
+            else:
+                value = ""
             print(value)
+
         elif node.name == "in":
             if isinstance(node.argument[0], AST.Variable):
                 user_input = input()
