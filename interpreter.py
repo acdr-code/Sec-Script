@@ -244,6 +244,14 @@ def evaluate(node):
     if isinstance(node, AST.DnsNode):
         return SecurityStuff.dnsRecords(node)
 
+    if isinstance(node, AST.TslCertCheckNode):
+        host = evaluate(node.ip)
+        timeout = evaluate(node.timeout)
+        try:
+            return SecurityStuff.TlsCertCheck(host, timeout)
+        except OSError as e:
+            raise SecScriptError(str(e), line=node.line)
+
     raise SecScriptError(f"Cannot evaluate: {type(node).__name__}", line=getattr(node, "line", None))
 
 

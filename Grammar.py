@@ -65,6 +65,8 @@ grammar = r"""
     shell_stmt: "sshConnect" expr "password" expr "on" "port" expr "{" statement+ "}"
     run_ing: "run" expr
 
+    check_cert: "checkCert" expr "timeout" expr
+
     comparison: atom COMP_OP atom
     math_ing: atom MATH_OP atom
     connect_ing: atom CONNECT_OP atom
@@ -93,6 +95,7 @@ grammar = r"""
         | readlines
         | exists
         | dns
+        | check_cert
 
     COMP_OP: "==" | "!=" | "<" | ">" | "<=" | ">="
     MATH_OP: "+" | "-" | "/" | "*"
