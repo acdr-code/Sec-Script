@@ -4,5 +4,6 @@ __pycache__/
 *.txt
 !requirements.txt
 *.secs
+!ex.secs
 *.test
 *.env

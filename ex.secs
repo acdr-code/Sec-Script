@@ -1,0 +1,84 @@
+let simpledict be {I: "you"; went: "go"}
+out(simpledict & simpledict["I"])
+
+append(simpledict, "Strict", 5)
+out(simpledict & simpledict["Strict"])
+
+let mylist be [1, 2, 3]
+out(mylist)
+
+append(mylist, 5)
+out(mylist)
+
+out(getMyIfaces())
+let that be getMyIfaces()
+out(that)
+
+out(getMyIp())
+out(myusrname())
+
+//out(resultOne) // Error and if __name__ is main checking
+
+out(hash("sha256", "loveu"))
+let encodeText be encode("base64", "loveu")
+out(encodeText)
+let decodeText be decode("base64", encodeText)
+out(decodeText)
+
+out(localtime())
+out(unixtime())
+
+out(int(unixtime()))
+out(bool(""))
+
+let response be httpRequest("get", "http://google.com", "headers")
+out(response)
+
+out(length(mylist))
+
+let asdasd be [1,2,3]
+
+let exampleList be [1, 2, 4]
+out(exampleList)
+append(exampleList, 4)
+out(exampleList)
+remove(exampleList, 4)
+out(exampleList)
+clear(exampleList)
+out(exampleList)
+out(length(exampleList))
+append(exampleList, asdasd)
+append(exampleList, 1)
+out(exampleList)
+removeLast(exampleList)
+out(exampleList)
+
+let x be exists "fileHandel.py"
+//out(x)
+
+let x be read "fileHandel.py"
+//out(x)
+
+let xLiney be readlines "errorHandler.py"
+//out(xLiney)
+
+//write "lorem ipsum" to "test.test"
+//out(read "test.test")
+
+//writeend "stellar" to "test.test"
+//out(read "test.test")
+
+let dnsResult be dns "example.com" record "ALL"
+out(dnsResult)
+
+
+//let validCert be checkCert "example.com" timeout 3
+//out(validCert)
+//let expCert be checkCert "expired.badssl.com" timeout 3
+//out(expCert)
+//let nodoomCert be checkCert "asdasdasdlksald.com" timeout 3
+//out(nodoomCert)
+
+out("test")
+out()
+out("test")
