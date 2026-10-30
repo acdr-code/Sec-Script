@@ -131,6 +131,7 @@ def evaluate(node):
             raise SecScriptError(f"Index/key '{index}' not found in '{node.container}'", line=node.line)
 
     if isinstance(node, AST.FunctionCallNode):
+        #user built
         if node.name in funcEnv:
             return call_function(node)
 
@@ -149,6 +150,11 @@ def evaluate(node):
         typechangeResult = convert(node)
         if typechangeResult is not None:
             return typechangeResult
+
+        #in function
+        if node.name == "in":
+            user_input = input(evaluate(node.argument[0]))
+            return user_input
 
         #dict, list -- length
         if node.name == "length":
@@ -329,11 +335,7 @@ def interpret(node):
             else:
                 value = ""
             print(value)
-
-        elif node.name == "in":
-            if isinstance(node.argument[0], AST.Variable):
-                user_input = input()
-                env_stack[-1][node.argument[0].name] = user_input
+        
         elif node.name in funcEnv:
             return call_function(node)
 
