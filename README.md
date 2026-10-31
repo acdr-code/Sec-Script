@@ -69,7 +69,7 @@ You can see examples in the `ex.secs` file.
 1. Make sure to have [Python](https://www.python.org/) installed on your device
 2. Download the project using:
 ```
-git clone https://github.com/arshia2012/Sec-Script.git
+git clone https://github.com/acdr-code/Sec-Script.git
 ```
 3. Go to project directory in Terminal
 4. Make venv using:
