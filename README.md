@@ -92,7 +92,7 @@ venv\Scripts\activate
 ```
 #on linux/macOS
 
-source venv\bin\activate
+source venv/bin/activate
 ```
 6. Install requirements with:
 ```
