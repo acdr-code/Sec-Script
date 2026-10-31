@@ -258,6 +258,17 @@ def evaluate(node):
         except OSError as e:
             raise SecScriptError(str(e), line=node.line)
 
+    if isinstance(node, AST.ArpScanNode):
+        ip = evaluate(node.ip)
+        iface = evaluate(node.iface)
+        timeout = evaluate(node.timeout)
+        result = []
+
+        try:
+            return SecurityStuff.arpScannerLan(ip=ip, iface=iface, timeout=timeout)
+        except:
+            raise SecScriptError(f"Error while Arpscanning wanted ip: {ip} with iface: {iface}", line=node.line)
+
     raise SecScriptError(f"Cannot evaluate: {type(node).__name__}", line=getattr(node, "line", None))
 
 

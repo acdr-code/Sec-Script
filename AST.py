@@ -212,6 +212,13 @@ class TslCertCheckNode(ASTNODE):
         self.ip = ip
         self.timeout = timeout
 
+class ArpScanNode(ASTNODE):
+    def __init__(self, ip, iface, timeout, line=None):
+        super().__init__(line)
+        self.ip = ip
+        self.iface = iface
+        self.timeout = timeout
+
 
 # ====================== Transformer ======================
 
@@ -337,6 +344,26 @@ class ASTBuilder(Transformer):
         body = items[3:]
         return ShellNode(target, password, port, body, line=meta.line)
 
+    def dns(self, meta, items):
+            ipObj = items[0]
+            recordObj = items[1]
+            return DnsNode(ip=ipObj, record=recordObj, line=meta.line)
+    
+    def check_cert(self, meta, items):
+        ipObj = items[0]
+        timeOut = items[1]
+        return TslCertCheckNode(ip=ipObj, line=meta.line, timeout=timeOut)
+
+    def run_ing(self, meta, items):
+        command = items[0]
+        return ShellRunNode(command, line=meta.line)
+
+    def arpscan(self, meta, items):
+        ip = items[0]
+        iface = items[1]
+        timeout = items[2]
+        return ArpScanNode(ip=ip, iface=iface, timeout=timeout, line=meta.line)
+
     #file-stuff
     def write(self, meta, items):
         container = items[0]
@@ -361,20 +388,6 @@ class ASTBuilder(Transformer):
         return FileExistsNode(file=fileName, line=meta.line)
 
     #-----------------------
-
-    def dns(self, meta, items):
-        ipObj = items[0]
-        recordObj = items[1]
-        return DnsNode(ip=ipObj, record=recordObj, line=meta.line)
-
-    def check_cert(self, meta, items):
-        ipObj = items[0]
-        timeOut = items[1]
-        return TslCertCheckNode(ip=ipObj, line=meta.line, timeout=timeOut)
-
-    def run_ing(self, meta, items):
-        command = items[0]
-        return ShellRunNode(command, line=meta.line)
 
     def comparison(self, meta, items):
         left, op, right = items

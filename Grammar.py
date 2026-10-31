@@ -79,6 +79,8 @@ grammar = r"""
 
     dns: "dns" expr "record" expr
 
+    arpscan: "arpscan" expr "iface" expr "timeout" expr
+
     atom: INT_NUMBER
         | FLOAT_NUMBER
         | ESCAPED_STRING
@@ -96,6 +98,7 @@ grammar = r"""
         | exists
         | dns
         | check_cert
+        | arpscan
 
     COMP_OP: "==" | "!=" | "<" | ">" | "<=" | ">="
     MATH_OP: "+" | "-" | "/" | "*"
