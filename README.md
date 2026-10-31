@@ -58,11 +58,18 @@ You can see examples in the `ex.secs` file.
 
 ## Roadmap
 
-- [ ] Change `python3 path/to/Sec-Script Repo/main.py path/to/project.secs` to `secScript path/to/project.secs` for running your .secs file
-- [ ] Add more built-in functions for cybersecurity
-- [ ] Add functions for malware analysis
-- [ ] Add functions for digital forensics
-- [ ] Make a documentation website
+### Version 0.x (Current)
+- [x] Basic language features (variables, loops, functions, ...)
+- [x] SSH, HTTP, DNS, Hashing, TLS check
+- [x] ARP Scan (Network Discovery)
+- [ ] Better CLI (`secs` command instead of `python main.py`)
+
+### Future
+- [ ] More network tools (port service detection, banner grabbing, ...)
+- [ ] Malware analysis features
+- [ ] Digital forensics helpers
+- [ ] Proper documentation website
+- [ ] Standalone installer (no need for pip/python knowledge)
 
 ## Installation
 
