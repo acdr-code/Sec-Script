@@ -170,6 +170,32 @@ class ImportNode(ASTNODE):
         super().__init__(line)
         self.file = file
 
+class DnsNode(ASTNODE):
+    def __init__(self, ip, record, line=None):
+        super().__init__(line)
+        self.ip = ip
+        self.record = record
+
+class TslCertCheckNode(ASTNODE):
+    def __init__(self, ip, timeout, line=None):
+        super().__init__(line)
+        self.ip = ip
+        self.timeout = timeout
+
+class ArpScanNode(ASTNODE):
+    def __init__(self, ip, iface, timeout, line=None):
+        super().__init__(line)
+        self.ip = ip
+        self.iface = iface
+        self.timeout = timeout
+
+class BannerGrabbingNode(ASTNODE):
+    def __init__(self, ip, port, timeout, line=None):
+        super().__init__(line)
+        self.ip = ip
+        self.port = port
+        self.timeout = timeout
+
 #file-stuff
 class SimpleWriteNode(ASTNODE):
     def __init__(self, container, file, line=None):
@@ -199,26 +225,6 @@ class FileExistsNode(ASTNODE):
         self.file = file
 
 #-----------------------
-
-class DnsNode(ASTNODE):
-    def __init__(self, ip, record, line=None):
-        super().__init__(line)
-        self.ip = ip
-        self.record = record
-
-class TslCertCheckNode(ASTNODE):
-    def __init__(self, ip, timeout, line=None):
-        super().__init__(line)
-        self.ip = ip
-        self.timeout = timeout
-
-class ArpScanNode(ASTNODE):
-    def __init__(self, ip, iface, timeout, line=None):
-        super().__init__(line)
-        self.ip = ip
-        self.iface = iface
-        self.timeout = timeout
-
 
 # ====================== Transformer ======================
 
@@ -363,6 +369,12 @@ class ASTBuilder(Transformer):
         iface = items[1]
         timeout = items[2]
         return ArpScanNode(ip=ip, iface=iface, timeout=timeout, line=meta.line)
+
+    def banner_grab(self, meta, items):
+        ip = items[0]
+        port = items[1]
+        timeout = items[2]
+        return BannerGrabbingNode(ip=ip, timeout=timeout, port=port, line=meta.line)
 
     #file-stuff
     def write(self, meta, items):

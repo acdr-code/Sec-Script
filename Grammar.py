@@ -81,6 +81,8 @@ grammar = r"""
 
     arpscan: "arpscan" expr "iface" expr "timeout" expr
 
+    banner_grab: "grab" expr "port" expr "timeout" expr
+
     atom: INT_NUMBER
         | FLOAT_NUMBER
         | ESCAPED_STRING
@@ -99,6 +101,7 @@ grammar = r"""
         | dns
         | check_cert
         | arpscan
+        | banner_grab
 
     COMP_OP: "==" | "!=" | "<" | ">" | "<=" | ">="
     MATH_OP: "+" | "-" | "/" | "*"

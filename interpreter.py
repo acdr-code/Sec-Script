@@ -262,12 +262,18 @@ def evaluate(node):
         ip = evaluate(node.ip)
         iface = evaluate(node.iface)
         timeout = evaluate(node.timeout)
-        result = []
 
         try:
             return SecurityStuff.arpScannerLan(ip=ip, iface=iface, timeout=timeout)
         except:
             raise SecScriptError(f"Error while Arpscanning wanted ip: {ip} with iface: {iface}", line=node.line)
+
+    if isinstance(node, AST.BannerGrabbingNode):
+        ip = evaluate(node.ip)
+        port = int(evaluate(node.port))
+        timeout = int(evaluate(node.timeout))
+
+        return SecurityStuff.grabBanner(ip=ip, timeout=timeout, port=port)
 
     raise SecScriptError(f"Cannot evaluate: {type(node).__name__}", line=getattr(node, "line", None))
 
