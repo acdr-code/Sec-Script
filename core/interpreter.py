@@ -1,19 +1,18 @@
-import AST
-import sys
+from . import ASTNode
+from . import ASTBuild
 from concurrent.futures import ThreadPoolExecutor
-import SecurityStuff
+from security import SecurityStuff
 from scapy.all import get_if_list
 import subprocess
-from errorHandler import SecScriptError
+from .errorHandler import SecScriptError
 import time
 from datetime import datetime, timezone
-from convertTypes import convert
-import fileHandel
+from utills.convertTypes import convert
+from fileio import fileHandel
 import os
-from pathResolver import resolve_path
+from fileio.pathResolver import resolve_path
 import os
-from Grammar import parser
-from AST import ASTBuilder
+from .Grammar import parser
 
 imported_files = set()
 dir_stack = []
@@ -29,7 +28,7 @@ def run_file(filepath):
         code = f.read()
 
     tree = parser.parse(code)
-    ast_statements = ASTBuilder().transform(tree)
+    ast_statements = ASTBuild.ASTBuilder().transform(tree)
 
     is_main = (len(dir_stack) == 0)
     env_stack[-1]["__name__"] = "main" if is_main else "imported"
@@ -69,24 +68,24 @@ def call_function(node):
 
 
 def evaluate(node):
-    if isinstance(node, AST.StringLiteral):
+    if isinstance(node, ASTNode.StringLiteral):
         return node.value
 
-    if isinstance(node, AST.IntLiteral):
+    if isinstance(node, ASTNode.IntLiteral):
         return node.value
 
-    if isinstance(node, AST.FloatLiteral):
+    if isinstance(node, ASTNode.FloatLiteral):
         return node.value
 
-    if isinstance(node, AST.BooleanLiteral):
+    if isinstance(node, ASTNode.BooleanLiteral):
         return node.value
 
-    if isinstance(node, AST.Variable):
+    if isinstance(node, ASTNode.Variable):
         if node.name in env_stack[-1]:
             return env_stack[-1][node.name]
         raise SecScriptError(f"Variable '{node.name}' is not defined", line=node.line)
 
-    if isinstance(node, AST.BinaryOpNode):
+    if isinstance(node, ASTNode.BinaryOpNode):
         left = evaluate(node.left)
         right = evaluate(node.right)
         op = node.op
@@ -108,19 +107,19 @@ def evaluate(node):
 
         raise SecScriptError(f"Unknown operator '{op}'", line=node.line)
 
-    if isinstance(node, AST.ListNode):
+    if isinstance(node, ASTNode.ListNode):
         listEnv = []
         for element in node.elements:
             listEnv.append(evaluate(element))
         return listEnv
 
-    if isinstance(node, AST.DictNode):
+    if isinstance(node, ASTNode.DictNode):
         dictEnv = {}
         for key, valueNode in node.pairs:
             dictEnv[key] = evaluate(valueNode)
         return dictEnv
 
-    if isinstance(node, AST.IndexingNode):
+    if isinstance(node, ASTNode.IndexingNode):
         if node.container not in env_stack[-1]:
             raise SecScriptError(f"Variable '{node.container}' is not defined", line=node.line)
         actualName = env_stack[-1][node.container]
@@ -130,7 +129,7 @@ def evaluate(node):
         except (KeyError, IndexError):
             raise SecScriptError(f"Index/key '{index}' not found in '{node.container}'", line=node.line)
 
-    if isinstance(node, AST.FunctionCallNode):
+    if isinstance(node, ASTNode.FunctionCallNode):
         #user built
         if node.name in funcEnv:
             return call_function(node)
@@ -192,7 +191,7 @@ def evaluate(node):
 
         raise SecScriptError(f"Cannot evaluate function: {node.name}", line=node.line)
 
-    if isinstance(node, AST.PortScanNode):
+    if isinstance(node, ASTNode.PortScanNode):
         ip = evaluate(node.ip)
         start = evaluate(node.start)
         end = evaluate(node.end)
@@ -208,7 +207,7 @@ def evaluate(node):
 
         return open_ports
 
-    if isinstance(node, AST.WebIndexingNode):
+    if isinstance(node, ASTNode.WebIndexingNode):
         target = evaluate(node.site)
         objectTofind = evaluate(node.object)
         found = []
@@ -217,7 +216,7 @@ def evaluate(node):
 
         return found
 
-    if isinstance(node, AST.SniffingNode):
+    if isinstance(node, ASTNode.SniffingNode):
         iface = evaluate(node.iface)
         count = evaluate(node.count)
         delay = evaluate(node.delay)
@@ -229,7 +228,7 @@ def evaluate(node):
 
         return result
 
-    if isinstance(node, AST.ShellRunNode):
+    if isinstance(node, ASTNode.ShellRunNode):
         if not ssh_sessions:
             raise SecScriptError("run statement is used outside of connecting function", line=node.line)
 
@@ -238,19 +237,19 @@ def evaluate(node):
 
         return SecurityStuff.RunSsh(client=client, command=command)
 
-    if isinstance(node, AST.FileExistsNode):
+    if isinstance(node, ASTNode.FileExistsNode):
         return fileHandel.FileExists(resolve_path(node))
 
-    if isinstance(node, AST.SimpleReadNode):
+    if isinstance(node, ASTNode.SimpleReadNode):
         return fileHandel.WholeFileRead(resolve_path(node))
 
-    if isinstance(node, AST.ReadLinesNode):
+    if isinstance(node, ASTNode.ReadLinesNode):
         return fileHandel.LineFileRead(resolve_path(node))
 
-    if isinstance(node, AST.DnsNode):
+    if isinstance(node, ASTNode.DnsNode):
         return SecurityStuff.dnsRecords(node)
 
-    if isinstance(node, AST.TslCertCheckNode):
+    if isinstance(node, ASTNode.TslCertCheckNode):
         host = evaluate(node.ip)
         timeout = evaluate(node.timeout)
         try:
@@ -258,7 +257,7 @@ def evaluate(node):
         except OSError as e:
             raise SecScriptError(str(e), line=node.line)
 
-    if isinstance(node, AST.ArpScanNode):
+    if isinstance(node, ASTNode.ArpScanNode):
         ip = evaluate(node.ip)
         iface = evaluate(node.iface)
         timeout = evaluate(node.timeout)
@@ -268,7 +267,7 @@ def evaluate(node):
         except:
             raise SecScriptError(f"Error while Arpscanning wanted ip: {ip} with iface: {iface}", line=node.line)
 
-    if isinstance(node, AST.BannerGrabbingNode):
+    if isinstance(node, ASTNode.BannerGrabbingNode):
         ip = evaluate(node.ip)
         port = int(evaluate(node.port))
         timeout = int(evaluate(node.timeout))
@@ -279,7 +278,7 @@ def evaluate(node):
 
 
 def interpret(node):
-    if isinstance(node, AST.FunctionCallNode):
+    if isinstance(node, ASTNode.FunctionCallNode):
         if node.name == "append":
             if len(node.argument) < 2:
                 raise SecScriptError("append() should have at least 2 arguments", line=node.line)
@@ -380,11 +379,11 @@ def interpret(node):
         else:
             raise SecScriptError(f"Unknown function: {node.name}", line=node.line)
 
-    elif isinstance(node, AST.LetNode):
+    elif isinstance(node, ASTNode.LetNode):
         value = evaluate(node.value)
         env_stack[-1][node.name] = value
 
-    elif isinstance(node, AST.IfNode):
+    elif isinstance(node, ASTNode.IfNode):
         cond_value = evaluate(node.condition)
 
         if cond_value:
@@ -398,7 +397,7 @@ def interpret(node):
                 if result is not None and result[0] == "RETURN":
                     return result
 
-    elif isinstance(node, AST.ForLoopNode):
+    elif isinstance(node, ASTNode.ForLoopNode):
         start_val = evaluate(node.start)
         end_val = evaluate(node.end)
 
@@ -409,7 +408,7 @@ def interpret(node):
                 if result is not None and result[0] == "RETURN":
                     return result
 
-    elif isinstance(node, AST.ForItemLoopNode):
+    elif isinstance(node, ASTNode.ForItemLoopNode):
         if node.list_name not in env_stack[-1]:
             raise SecScriptError(f"Variable '{node.list_name}' is not defined", line=node.line)
         list_name = env_stack[-1][node.list_name]
@@ -421,27 +420,27 @@ def interpret(node):
                 if result is not None and result[0] == "RETURN":
                     return result
 
-    elif isinstance(node, AST.WhileLoopNode):
+    elif isinstance(node, ASTNode.WhileLoopNode):
         while evaluate(node.condition):
             for stmt in node.body:
                 result = interpret(stmt)
                 if result is not None and result[0] == "RETURN":
                     return result
 
-    elif isinstance(node, AST.FunctionNode):
+    elif isinstance(node, ASTNode.FunctionNode):
         funcEnv[node.name] = node
 
-    elif isinstance(node, AST.ReturnNode):
+    elif isinstance(node, ASTNode.ReturnNode):
         value = evaluate(node.value)
         return ("RETURN", value)
 
-    elif isinstance(node, AST.ImportNode):
+    elif isinstance(node, ASTNode.ImportNode):
         filename = node.file
         current_dir = dir_stack[-1] if dir_stack else os.getcwd()
         target_path = os.path.join(current_dir, filename)
         run_file(target_path)
 
-    elif isinstance(node, AST.ShellNode):
+    elif isinstance(node, ASTNode.ShellNode):
         target = evaluate(node.target)
         password = evaluate(node.password)
         port = evaluate(node.port)
@@ -458,7 +457,7 @@ def interpret(node):
             SecurityStuff.CloseSsh(client)
             ssh_sessions.pop()
 
-    elif isinstance(node, AST.SimpleWriteNode):
+    elif isinstance(node, ASTNode.SimpleWriteNode):
         try:
             path = resolve_path(node)
             writeObject = evaluate(node.container)
@@ -468,7 +467,7 @@ def interpret(node):
         except Exception:
             raise SecScriptError(f"Error while requesting to write the file at path -> {path}", line=node.line)
 
-    elif isinstance(node, AST.WriteEndNode):
+    elif isinstance(node, ASTNode.WriteEndNode):
         try:
             path = resolve_path(node)
             writeObject = evaluate(node.container)

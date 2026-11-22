@@ -1,5 +1,5 @@
 import sys
-import interpreter
+from core import interpreter
 from lark.exceptions import UnexpectedCharacters, UnexpectedEOF, UnexpectedToken, VisitError
 
 #warning stop

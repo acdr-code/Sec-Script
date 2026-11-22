@@ -1,7 +1,7 @@
-from errorHandler import SecScriptError
+from core.errorHandler import SecScriptError
 
 def convert(node):
-    from interpreter import evaluate
+    from core.interpreter import evaluate
 
     if node.name in ("string", "float", "bool", "int"):
         if len(node.argument) != 1:
