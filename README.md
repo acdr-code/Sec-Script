@@ -31,56 +31,102 @@ You can see examples in the `ex.secs` file.
 
 ## Project Structure
 SecScript/
+
 ├── core/
+
 │   ├── __init__.py
+
 │   ├── ASTBuild.py
+
 │   ├── ASTNode.py
+
 │   ├── errorHandler.py
+
 │   ├── Grammar.py
+
 │   └── interpreter.py
-│
+
+
 ├── fileio/
+
 │   ├── __init__.py
+
 │   ├── fileHandel.py
+
 │   └── pathResolver.py
-│
+
+
 ├── security/
+
 │   ├── cert/
+
 │   │   ├── __init__.py
+
 │   │   └── tsl.py
+
 │   ├── crypto/
+
 │   │   ├── __init__.py
+
 │   │   └── hash.py
+
 │   ├── network/
+
 │   │   ├── __init__.py
+
 │   │   ├── banner.py
+
 │   │   ├── dns.py
+
 │   │   └── scanning.py
+
 │   ├── remote/
+
 │   │   ├── __init__.py
+
 │   │   └── sshclient.py
+
 │   ├── traffic/
+
 │   │   ├── __init__.py
+
 │   │   ├── arp.py
+
 │   │   └── sniffing.py
+
 │   ├── web/
+
 │   │   ├── __init__.py
+
 │   │   ├── indexing.py
+
 │   │   └── requests.py
+
 │   └── SecurityStuff.py
-│
+
+
 ├── utills/
+
 │   ├── __init__.py
+
 │   └── convertTypes.py
-│
+
+
 ├── tests/
+
 │   ├── asdasd.secs
+
 │   └── ex.secs
-│
+
+
 ├── main.py
+
 ├── pyproject.toml
+
 ├── requirements.txt
+
 ├── README.md
+
 └── LICENSE
 
 ## Roadmap
