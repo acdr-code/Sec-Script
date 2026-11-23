@@ -30,31 +30,58 @@ A scripting language made for security work (pentest, building security tools, a
 You can see examples in the `ex.secs` file.
 
 ## Project Structure
-├── AST.py
-
-├── convertTypes.py
-
-├── errorHandler.py
-
-├── ex.secs
-
-├── fileHandel.py
-
-├── Grammar.py
-
-├── interpreter.py
-
-├── LICENSE
-
+SecScript/
+├── core/
+│   ├── __init__.py
+│   ├── ASTBuild.py
+│   ├── ASTNode.py
+│   ├── errorHandler.py
+│   ├── Grammar.py
+│   └── interpreter.py
+│
+├── fileio/
+│   ├── __init__.py
+│   ├── fileHandel.py
+│   └── pathResolver.py
+│
+├── security/
+│   ├── cert/
+│   │   ├── __init__.py
+│   │   └── tsl.py
+│   ├── crypto/
+│   │   ├── __init__.py
+│   │   └── hash.py
+│   ├── network/
+│   │   ├── __init__.py
+│   │   ├── banner.py
+│   │   ├── dns.py
+│   │   └── scanning.py
+│   ├── remote/
+│   │   ├── __init__.py
+│   │   └── sshclient.py
+│   ├── traffic/
+│   │   ├── __init__.py
+│   │   ├── arp.py
+│   │   └── sniffing.py
+│   ├── web/
+│   │   ├── __init__.py
+│   │   ├── indexing.py
+│   │   └── requests.py
+│   └── SecurityStuff.py
+│
+├── utills/
+│   ├── __init__.py
+│   └── convertTypes.py
+│
+├── tests/
+│   ├── asdasd.secs
+│   └── ex.secs
+│
 ├── main.py
-
-├── pathResolver.py
-
-├── README.md
-
+├── pyproject.toml
 ├── requirements.txt
-
-└── SecurityStuff.py
+├── README.md
+└── LICENSE
 
 ## Roadmap
 
@@ -62,7 +89,7 @@ You can see examples in the `ex.secs` file.
 - [x] Basic language features (variables, loops, functions, ...)
 - [x] SSH, HTTP, DNS, Hashing, TLS check
 - [x] ARP Scan (Network Discovery)
-- [ ] Better CLI (`secs` command instead of `python main.py`)
+- [x] Better CLI (`secs` command instead of `python main.py`)
 
 ### Future
 - [ ] More network tools (port service detection, banner grabbing, ...)
