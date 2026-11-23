@@ -9,3 +9,4 @@ __init__.py
 *.test
 *.env
 *.egg-info/
+build/
