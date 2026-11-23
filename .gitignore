@@ -8,3 +8,4 @@ __init__.py
 !ex.secs
 *.test
 *.env
+*.egg-info/
