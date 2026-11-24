@@ -13,6 +13,7 @@ from .crypto.hash import (
 from .network.banner import grabBanner
 from .network.dns import dnsRecords
 from .network.scanning import portScan
+from .network.ip import ipversion, ipValidity, firstUsableaddr, networkRange, networkUsableNum
 
 # Remote
 from .remote.sshclient import (

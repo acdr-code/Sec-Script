@@ -189,6 +189,22 @@ def evaluate(node):
         if node.name == "unixtime":
             return time.time()
 
+        #IP-network elements
+        if node.name == "ipValidity":
+            return SecurityStuff.ipValidity(evaluate(node.argument[0]), line=node.line)
+
+        if node.name == "ipVer":
+            return SecurityStuff.ipversion(evaluate(node.argument[0]), line=node.line)
+
+        if node.name == "ipfirstUseAddr":
+            return SecurityStuff.firstUsableaddr(evaluate(node.argument[0]), line=node.line)
+
+        if node.name == "ipRange":
+            return SecurityStuff.networkRange(evaluate(node.argument[0]), line=node.line)
+
+        if node.name == "ipUseRangeNum":
+            return SecurityStuff.networkUsableNum(evaluate(node.argument[0]), line=node.line)
+
         raise SecScriptError(f"Cannot evaluate function: {node.name}", line=node.line)
 
     if isinstance(node, ASTNode.PortScanNode):
