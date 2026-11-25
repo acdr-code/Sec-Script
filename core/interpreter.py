@@ -205,6 +205,10 @@ def evaluate(node):
         if node.name == "ipUseRangeNum":
             return SecurityStuff.networkUsableNum(evaluate(node.argument[0]), line=node.line)
 
+        #HTTP elements
+        if node.name == "redirectInspect":
+            return SecurityStuff.redirectInspect(*(evaluate(arg) for arg in node.argument), node.line)
+
         raise SecScriptError(f"Cannot evaluate function: {node.name}", line=node.line)
 
     if isinstance(node, ASTNode.PortScanNode):
