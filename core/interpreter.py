@@ -209,6 +209,9 @@ def evaluate(node):
         if node.name == "redirectInspect":
             return SecurityStuff.redirectInspect(*(evaluate(arg) for arg in node.argument), node.line)
 
+        if node.name == "cookieInspect":
+            return SecurityStuff.cookie(*(evaluate(arg) for arg in node.argument), node.line)
+
         raise SecScriptError(f"Cannot evaluate function: {node.name}", line=node.line)
 
     if isinstance(node, ASTNode.PortScanNode):

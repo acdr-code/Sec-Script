@@ -32,3 +32,4 @@ from .traffic.sniffing import (
 # Web
 from .web.indexing import WebIndex
 from .web.requests import httpRequest, redirectInspect
+from .web.cookie import cookie
