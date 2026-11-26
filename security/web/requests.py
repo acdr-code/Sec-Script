@@ -89,20 +89,8 @@ def redirectInspect(firstAddr, httpMode, timeout, output, line):
         if output == "all":
             return redirectList
 
-        elif output == "url":
-            return [item["url"] for item in redirectList]
-
-        elif output == "status":
-            return [item["status"] for item in redirectList]
-
-        elif output == "method":
-            return [item["method"] for item in redirectList]
-
-        elif output == "location":
-            return [item["location"] for item in redirectList]
-
         else:
-            raise SecScriptError(f"Error in output mode {output}: Output of this function should be one of these: all, url, status, method, location", line=line)
+            return [item[output] for item in redirectList]
 
     except requests.exceptions.MissingSchema:
         raise SecScriptError(f"Given url {firstAddr} doesn't have http:// or https:// at first", line=line)
