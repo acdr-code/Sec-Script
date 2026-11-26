@@ -76,6 +76,6 @@ def hedIt(node):
         try:
             return DECODE_FUNCS[fmt](data)
         except Exception:
-            raise SecsRuntimeError("Decoding failed, check if the entered data was really one of the valid formats: base64, hex, url", line=node.line)
+            raise SecsRuntimeError("Decoding failed, check if the entered data was one of the valid formats: base64, hex, url", line=node.line)
     
     return None

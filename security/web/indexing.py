@@ -10,3 +10,5 @@ def WebIndex(target, object, list):
     things = soup.find_all(f"{object}")
     
     list.append(things)
+
+    #should be fixed

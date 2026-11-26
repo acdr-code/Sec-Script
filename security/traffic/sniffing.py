@@ -1,9 +1,23 @@
+
 from scapy.all import sniff, IP, UDP, TCP
+from scapy.error import Scapy_Exception
 import time
 import datetime
 
-#Sniffing
-def SniffData(packet, delay, list):
+from core.errorHandler import SecsRuntimeError, SecsTypeError, SecsArgumentError
+
+
+# Sniffing
+def SniffData(packet, delay, result):
+    if not isinstance(delay, (int, float)) or isinstance(delay, bool):
+        raise SecsTypeError("Delay must be a number")
+
+    if delay < 0:
+        raise SecsArgumentError("Delay cannot be negative")
+
+    if not isinstance(result, list):
+        raise SecsTypeError("Packet storage must be a list")
+
     if not packet.haslayer(IP):
         return
 
@@ -25,7 +39,7 @@ def SniffData(packet, delay, list):
         portDst = None
         proto = packet[IP].proto
 
-    list.append({
+    result.append({
         "ts": time.time(),
         "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "src_ip": ipSrc,
@@ -39,19 +53,33 @@ def SniffData(packet, delay, list):
         time.sleep(delay)
 
 
-def SniffRun(iface, count, filter, delay, list):
-    if filter == "ALL":
-        sniff(
-            prn=lambda pkt: SniffData(packet=pkt, delay=delay, list=list),
-            count=count,
-            timeout=None,
-            iface=iface,
-        )
-    else:
-        sniff(
-            prn=lambda pkt: SniffData(packet=pkt, delay=delay, list=list),
-            count=count,
-            timeout=None,
-            iface=iface,
-            filter=filter,
-        )
+def SniffRun(iface, count, filter, delay, result):
+    if iface is not None and (not isinstance(iface, str) or not iface):
+        raise SecsTypeError("Interface must be a non-empty string")
+
+    if not isinstance(count, int) or isinstance(count, bool):
+        raise SecsTypeError("Count must be an integer")
+
+    if count < 0:
+        raise SecsArgumentError("Count cannot be negative")
+
+    if not isinstance(filter, str):
+        raise SecsTypeError("Filter must be a string")
+
+    if not isinstance(delay, (int, float)) or isinstance(delay, bool):
+        raise SecsTypeError("Delay must be a number")
+
+    if delay < 0:
+        raise SecsArgumentError("Delay cannot be negative")
+
+    if not isinstance(result, list):
+        raise SecsTypeError("Packet storage must be a list")
+
+    try:
+        if filter == "ALL":
+            sniff(prn=lambda pkt: SniffData(packet=pkt, delay=delay, result=result), count=count, timeout=None, iface=iface)
+        else:
+            sniff(prn=lambda pkt: SniffData(packet=pkt, delay=delay, result=result), count=count, timeout=None, iface=iface, filter=filter)
+
+    except (Scapy_Exception, OSError, ValueError) as e:
+        raise SecsRuntimeError(f"Packet sniffing failed: {e}") from e
