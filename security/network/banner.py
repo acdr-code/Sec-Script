@@ -1,11 +1,12 @@
 import socket
-from core.errorHandler import SecScriptError
+from core.errorHandler import SecsRuntimeError
 
 def grabBanner(ip, port, timeout):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.settimeout(timeout)
-
     try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(timeout)
+
+
         sock.connect((ip,port))
 
         try:
@@ -36,7 +37,7 @@ def grabBanner(ip, port, timeout):
         return banner if banner else "NoBanner"
 
     except (socket.timeout, OSError, ConnectionRefusedError) as e:
-        raise SecScriptError(f"Error while trying to grab Banner from {ip}:{port}, Full error -> {e}")
+        raise SecsRuntimeError(f"Error while trying to grab Banner from {ip}:{port}, Full error -> {e}")
 
     finally:
         sock.close()

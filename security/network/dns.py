@@ -1,4 +1,4 @@
-from core.errorHandler import SecScriptError
+from core.errorHandler import SecsNameError
 
 #Dns record
 def dnsRecords(node):
@@ -29,6 +29,6 @@ def dnsRecords(node):
                 pass
 
     else:
-        raise SecScriptError("Unknown DNS record wanted", line=node.line)
+        raise SecsNameError("Unknown DNS record wanted", line=node.line)
 
     return results

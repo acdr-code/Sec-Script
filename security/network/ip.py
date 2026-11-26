@@ -1,4 +1,4 @@
-from core.errorHandler import SecScriptError
+from core.errorHandler import SecsRuntimeError, SecsTypeError
 from ipaddress import ip_address, ip_network
 
 def ipversion(ipInput, line):
@@ -6,9 +6,9 @@ def ipversion(ipInput, line):
         ip = ip_address(ipInput)
         return ip.version
     except ValueError:
-        raise SecScriptError(f"IP: {ipInput} is not valid", line=line)
+        raise SecsTypeError(f"IP: {ipInput} is not valid", line=line)
     except Exception:
-        raise SecScriptError(f"Error while checking version of ip: {ipInput}", line=line)
+        raise SecsRuntimeError(f"Error while checking version of ip: {ipInput}", line=line)
 
 def ipValidity(ipInput, line):
     try:
@@ -17,7 +17,7 @@ def ipValidity(ipInput, line):
     except ValueError:
         return False
     except Exception:
-        raise SecScriptError(f"Error while checking validity of ip: {ipInput}", line=line)
+        raise SecsRuntimeError(f"Error while checking validity of ip: {ipInput}", line=line)
 
 def firstUsableaddr(networkInput, line):
     try:
@@ -31,9 +31,9 @@ def firstUsableaddr(networkInput, line):
         return str(firstUsable)
 
     except ValueError:
-        raise SecScriptError(f"Network: {networkInput} is not valid", line=line)
+        raise SecsTypeError(f"Network: {networkInput} is not valid", line=line)
     except Exception:
-        raise SecScriptError(f"Error while checking first usable network of {networkInput}", line=line)
+        raise SecsRuntimeError(f"Error while checking first usable network of {networkInput}", line=line)
 
 def networkRange(networkInput, line):
     try:
@@ -51,9 +51,9 @@ def networkRange(networkInput, line):
         return {"start": str(rangeStart), "end": str(rangeEnd)}
 
     except ValueError:
-        raise SecScriptError(f"Network: {networkInput} is not valid", line=line)
+        raise SecsTypeError(f"Network: {networkInput} is not valid", line=line)
     except Exception:
-        raise SecScriptError(f"Error while checking network range of {networkInput}", line=line)
+        raise SecsRuntimeError(f"Error while checking network range of {networkInput}", line=line)
 
 def networkUsableNum(networkInput, line):
     try:
@@ -72,6 +72,6 @@ def networkUsableNum(networkInput, line):
         return usableRange
 
     except ValueError:
-        raise SecScriptError(f"Network: {networkInput} is not valid", line=line)
+        raise SecsTypeError(f"Network: {networkInput} is not valid", line=line)
     except Exception:
-        raise SecScriptError(f"Error while counting usable network addresses of {networkInput}", line=line)
+        raise SecsRuntimeError(f"Error while counting usable network addresses of {networkInput}", line=line)

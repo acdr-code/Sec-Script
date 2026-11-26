@@ -4,7 +4,8 @@ from concurrent.futures import ThreadPoolExecutor
 from security import SecurityStuff
 from scapy.all import get_if_list
 import subprocess
-from .errorHandler import SecScriptError
+from .errorHandler import SecScriptError, SecsNameError, SecsRuntimeError, SecsTypeError, SecsArgumentError, SecsSyntaxError, SecsBuilderError
+from lark.exceptions import UnexpectedCharacters,UnexpectedEOF,UnexpectedToken,VisitError
 import time
 from datetime import datetime, timezone
 from utills.convertTypes import convert
@@ -27,8 +28,21 @@ def run_file(filepath):
     with open(abs_path, "r", encoding="utf-8") as f:
         code = f.read()
 
-    tree = parser.parse(code)
-    ast_statements = ASTBuild.ASTBuilder().transform(tree)
+    try:
+        tree = parser.parse(code)
+        ast_statements = ASTBuild.ASTBuilder().transform(tree)
+
+    except UnexpectedCharacters as e:
+        raise SecsSyntaxError(f"Unexpected character: '{e.char}'", line=e.line)
+
+    except UnexpectedToken as e:
+        raise SecsSyntaxError(f"Unexpected token: '{e.token}'", line=e.line)
+
+    except UnexpectedEOF as e:
+        raise SecsSyntaxError("Unexpected end of file", line=e.line)
+
+    except VisitError as e:
+        raise SecsBuilderError(f"Error in Building AST: {e.orig_exc}", line=e.obj.line) from e.orig_exc
 
     is_main = (len(dir_stack) == 0)
     env_stack[-1]["__name__"] = "main" if is_main else "imported"
@@ -83,7 +97,7 @@ def evaluate(node):
     if isinstance(node, ASTNode.Variable):
         if node.name in env_stack[-1]:
             return env_stack[-1][node.name]
-        raise SecScriptError(f"Variable '{node.name}' is not defined", line=node.line)
+        raise SecsNameError(f"Variable '{node.name}' is not defined", line=node.line)
 
     if isinstance(node, ASTNode.BinaryOpNode):
         left = evaluate(node.left)
@@ -100,12 +114,12 @@ def evaluate(node):
         if op == "-": return left - right
         if op == "/":
             if right == 0:
-                raise SecScriptError("Division by zero", line=node.line)
+                raise SecsRuntimeError("Division by zero", line=node.line)
             return left / right
         if op == "*": return left * right
         if op == "&": return str(left) + str(right)
 
-        raise SecScriptError(f"Unknown operator '{op}'", line=node.line)
+        raise SecsRuntimeError(f"Unknown operator '{op}'", line=node.line)
 
     if isinstance(node, ASTNode.ListNode):
         listEnv = []
@@ -121,13 +135,13 @@ def evaluate(node):
 
     if isinstance(node, ASTNode.IndexingNode):
         if node.container not in env_stack[-1]:
-            raise SecScriptError(f"Variable '{node.container}' is not defined", line=node.line)
+            raise SecsNameError(f"Variable '{node.container}' is not defined", line=node.line)
         actualName = env_stack[-1][node.container]
         index = evaluate(node.index)
         try:
             return actualName[index]
         except (KeyError, IndexError):
-            raise SecScriptError(f"Index/key '{index}' not found in '{node.container}'", line=node.line)
+            raise SecsRuntimeError(f"Index/key '{index}' not found in '{node.container}'", line=node.line)
 
     if isinstance(node, ASTNode.FunctionCallNode):
         #user built
@@ -212,7 +226,7 @@ def evaluate(node):
         if node.name == "cookieInspect":
             return SecurityStuff.cookie(*(evaluate(arg) for arg in node.argument), node.line)
 
-        raise SecScriptError(f"Cannot evaluate function: {node.name}", line=node.line)
+        raise SecsNameError(f"Cannot evaluate function: {node.name}", line=node.line)
 
     if isinstance(node, ASTNode.PortScanNode):
         ip = evaluate(node.ip)
@@ -253,7 +267,7 @@ def evaluate(node):
 
     if isinstance(node, ASTNode.ShellRunNode):
         if not ssh_sessions:
-            raise SecScriptError("run statement is used outside of connecting function", line=node.line)
+            raise SecsRuntimeError("run statement is used outside of connecting function", line=node.line)
 
         client = ssh_sessions[-1]
         command = evaluate(node.command)
@@ -278,7 +292,7 @@ def evaluate(node):
         try:
             return SecurityStuff.TlsCertCheck(host, timeout)
         except OSError as e:
-            raise SecScriptError(str(e), line=node.line)
+            raise SecsRuntimeError(str(e), line=node.line)
 
     if isinstance(node, ASTNode.ArpScanNode):
         ip = evaluate(node.ip)
@@ -287,7 +301,7 @@ def evaluate(node):
 
         try:
             return SecurityStuff.arpScannerLan(ip=ip, iface=iface, timeout=timeout)
-        except:
+        except SecScriptError:
             raise SecScriptError(f"Error while Arpscanning wanted ip: {ip} with iface: {iface}", line=node.line)
 
     if isinstance(node, ASTNode.BannerGrabbingNode):
@@ -297,36 +311,36 @@ def evaluate(node):
 
         return SecurityStuff.grabBanner(ip=ip, timeout=timeout, port=port)
 
-    raise SecScriptError(f"Cannot evaluate: {type(node).__name__}", line=getattr(node, "line", None))
+    raise SecsRuntimeError(f"Cannot evaluate: {type(node).__name__}", line=getattr(node, "line", None))
 
 
 def interpret(node):
     if isinstance(node, ASTNode.FunctionCallNode):
         if node.name == "append":
             if len(node.argument) < 2:
-                raise SecScriptError("append() should have at least 2 arguments", line=node.line)
+                raise SecsArgumentError("append() should have at least 2 arguments", line=node.line)
 
             container = evaluate(node.argument[0])
 
             if isinstance(container, list):
                 if len(node.argument) != 2:
-                    raise SecScriptError("For list append, you should have 2 arguments", line=node.line)
+                    raise SecsArgumentError("For list append, you should have 2 arguments", line=node.line)
                 value = evaluate(node.argument[1])
                 container.append(value)
 
             elif isinstance(container, dict):
                 if len(node.argument) != 3:
-                    raise SecScriptError("For dict append, you should have 3 arguments (key and value)", line=node.line)
+                    raise SecsArgumentError("For dict append, you should have 3 arguments (key and value)", line=node.line)
                 key = evaluate(node.argument[1])
                 value = evaluate(node.argument[2])
                 container[key] = value
 
             else:
-                raise SecScriptError(f"Can't append on '{container}', not list or dict format", line=node.line)
+                raise SecsTypeError(f"Can't append on '{container}', not list or dict format", line=node.line)
 
         elif node.name == "remove":
             if len(node.argument) != 2:
-                raise SecScriptError("remove() should have only 2 arguments", line=node.line)
+                raise SecsArgumentError("remove() should have only 2 arguments", line=node.line)
 
             container = evaluate(node.argument[0])
 
@@ -339,11 +353,11 @@ def interpret(node):
                 del container[keyValue]
 
             else:
-                raise SecScriptError(f"Can't append on '{container}', not list or dict format", line=node.line)
+                raise SecsTypeError(f"Can't append on '{container}', not list or dict format", line=node.line)
 
         elif node.name == "clear":
             if len(node.argument) != 1:
-                raise SecScriptError("clear() function only gets one argument", line=node.line)
+                raise SecsArgumentError("clear() function only gets one argument", line=node.line)
 
             container = evaluate(node.argument[0])
 
@@ -354,11 +368,11 @@ def interpret(node):
                 del container[:]
 
             else:
-                raise SecScriptError(f"Can't clear '{container}', not list or dict format", line=node.line)
+                raise SecsTypeError(f"Can't clear '{container}', not list or dict format", line=node.line)
 
         elif node.name == "removeLast":
             if len(node.argument) != 1:
-                raise SecScriptError("removeLast() function only gets one argument", line=node.line)
+                raise SecsArgumentError("removeLast() function only gets one argument", line=node.line)
 
             container = evaluate(node.argument[0])
 
@@ -366,7 +380,7 @@ def interpret(node):
                 container.pop()
 
             else:
-                raise SecScriptError(f"Can't removeList '{container}', not list format", line=node.line)\
+                raise SecsTypeError(f"Can't removeList '{container}', not list format", line=node.line)\
                 
         elif node.name == "out":
             if len(node.argument) > 0:
@@ -380,7 +394,7 @@ def interpret(node):
 
         elif node.name == "length":
             if len(node.argument) != 1:
-                raise SecScriptError("length() only gets 1 argument", line=node.line)
+                raise SecsArgumentError("length() only gets 1 argument", line=node.line)
 
             container = evaluate(node.argument[0])
 
@@ -388,7 +402,7 @@ def interpret(node):
                 return len(container)
 
             else:
-                raise SecScriptError(f"Can't get length of '{container}', not list or dict format", line=node.line)
+                raise SecsTypeError(f"Can't get length of '{container}', not list or dict format", line=node.line)
 
         elif node.name in ("hash", "encode", "decode"):
             SecurityStuff.hedIt(node)
@@ -400,7 +414,7 @@ def interpret(node):
             SecurityStuff.httpRequest(node)
         
         else:
-            raise SecScriptError(f"Unknown function: {node.name}", line=node.line)
+            raise SecsNameError(f"Unknown function: {node.name}", line=node.line)
 
     elif isinstance(node, ASTNode.LetNode):
         value = evaluate(node.value)
@@ -433,7 +447,7 @@ def interpret(node):
 
     elif isinstance(node, ASTNode.ForItemLoopNode):
         if node.list_name not in env_stack[-1]:
-            raise SecScriptError(f"Variable '{node.list_name}' is not defined", line=node.line)
+            raise SecsNameError(f"Variable '{node.list_name}' is not defined", line=node.line)
         list_name = env_stack[-1][node.list_name]
 
         for item in list_name:
@@ -481,24 +495,26 @@ def interpret(node):
             ssh_sessions.pop()
 
     elif isinstance(node, ASTNode.SimpleWriteNode):
+        path = ""
         try:
             path = resolve_path(node)
             writeObject = evaluate(node.container)
 
             return fileHandel.FileWrite(path=path, writeObj=writeObject, mode="w")
 
-        except Exception:
+        except SecScriptError:
             raise SecScriptError(f"Error while requesting to write the file at path -> {path}", line=node.line)
 
     elif isinstance(node, ASTNode.WriteEndNode):
+        path = ""
         try:
             path = resolve_path(node)
             writeObject = evaluate(node.container)
 
             return fileHandel.FileWrite(path=path, mode="a", writeObj=writeObject)
 
-        except Exception:
+        except SecScriptError:
             raise SecScriptError(f"Error while requesting to write the file at path -> {path}", line=node.line)
 
     else:
-        raise SecScriptError(f"Unknown node type: {type(node).__name__}", line=getattr(node, "line", None))
+        raise SecsRuntimeError(f"Unknown node type: {type(node).__name__}", line=getattr(node, "line", None))

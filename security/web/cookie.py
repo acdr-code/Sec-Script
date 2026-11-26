@@ -1,4 +1,4 @@
-from core.errorHandler import SecScriptError
+from core.errorHandler import SecsRuntimeError, SecsTypeError, SecsNameError
 import requests
 
 def cookie(url, method, timeout, output, line):
@@ -8,10 +8,10 @@ def cookie(url, method, timeout, output, line):
     cookiesGiven = []
 
     if method.upper() not in HTTP_METHODS:
-        raise SecScriptError(f"HTTP-Method: {method} is unknown or not accessed", line=line)
+        raise SecsNameError(f"HTTP-Method: {method} is unknown or not accessed", line=line)
 
     if output.lower() not in OUTPUT_MODES:
-        raise SecScriptError(f"Output method: {output} is unknown", line=line)
+        raise SecsNameError(f"Output method: {output} is unknown", line=line)
 
     try:
         response = requests.request(
@@ -37,46 +37,46 @@ def cookie(url, method, timeout, output, line):
             return [item[output] for item in cookiesGiven]
 
     except requests.exceptions.MissingSchema:
-        raise SecScriptError("URL is missing http:// or https://", line=line)
+        raise SecsTypeError("URL is missing http:// or https://", line=line)
 
     except requests.exceptions.InvalidSchema:
-        raise SecScriptError("URL schema is invalid", line=line)
+        raise SecsTypeError("URL schema is invalid", line=line)
 
     except requests.exceptions.InvalidURL:
-        raise SecScriptError(f"URL is invalid: {url}", line=line)
+        raise SecsTypeError(f"URL is invalid: {url}", line=line)
 
     except requests.exceptions.SSLError:
-        raise SecScriptError("SSL/TLS connection error", line=line)
+        raise SecsRuntimeError("SSL/TLS connection error", line=line)
 
     except requests.exceptions.ProxyError:
-        raise SecScriptError("Proxy connection error", line=line)
+        raise SecsRuntimeError("Proxy connection error", line=line)
 
     except requests.exceptions.ConnectTimeout:
-        raise SecScriptError("Connection timeout", line=line)
+        raise SecsRuntimeError("Connection timeout", line=line)
 
     except requests.exceptions.ReadTimeout:
-        raise SecScriptError("Response timeout", line=line)
+        raise SecsRuntimeError("Response timeout", line=line)
 
     except requests.exceptions.Timeout:
-        raise SecScriptError("Request timeout", line=line)
+        raise SecsRuntimeError("Request timeout", line=line)
 
     except requests.exceptions.TooManyRedirects:
-        raise SecScriptError("Maximum redirect limit exceeded", line=line)
+        raise SecsRuntimeError("Maximum redirect limit exceeded", line=line)
 
     except requests.exceptions.ChunkedEncodingError:
-        raise SecScriptError("Invalid or incomplete chunked response", line=line)
+        raise SecsRuntimeError("Invalid or incomplete chunked response", line=line)
 
     except requests.exceptions.ContentDecodingError:
-        raise SecScriptError("Response content decoding failed", line=line)
+        raise SecsRuntimeError("Response content decoding failed", line=line)
 
     except requests.exceptions.ConnectionError:
-        raise SecScriptError(f"Connection error at {url}", line=line)
+        raise SecsRuntimeError(f"Connection error at {url}", line=line)
 
     except requests.exceptions.RequestException:
-        raise SecScriptError("HTTP request failed", line=line)
+        raise SecsRuntimeError("HTTP request failed", line=line)
 
     except (AttributeError, TypeError, ValueError):
-        raise SecScriptError("Error while processing cookie data", line=line)
+        raise SecsRuntimeError("Error while processing cookie data", line=line)
 
     except Exception:
-        raise SecScriptError("Unexpected error while inspecting cookies", line=line)
+        raise SecsRuntimeError("Unexpected error while inspecting cookies", line=line)
