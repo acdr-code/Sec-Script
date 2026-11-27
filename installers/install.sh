@@ -6,13 +6,19 @@ VERSION="1.0.0-pre"
 REPO="acdr-code/Sec-Script"
 TAG="v${VERSION}"
 
-TEMP_DIR=$(mktemp -d)
+TEMP_DIR="$(mktemp -d)"
 
 cleanup() {
     rm -rf "$TEMP_DIR"
 }
 
-trap 'status=$?; echo; echo "Installation failed (exit code: $status)"; read -rp "Press Enter to exit..."' ERR
+trap cleanup EXIT
+
+fail() {
+    echo
+    echo "Installation failed: $1"
+    exit 1
+}
 
 echo "================================"
 echo "       SecScript Installer"
@@ -22,19 +28,16 @@ echo
 
 # Check sudo
 if ! command -v sudo >/dev/null 2>&1; then
-    echo "Error: sudo is required."
-    exit 1
+    fail "sudo is required."
 fi
 
 if ! sudo -v; then
-    echo "Error: Administrator privileges are required."
-    exit 1
+    fail "Administrator privileges are required."
 fi
 
 # Detect Linux distribution
-if [ ! -f /etc/os-release ]; then
-    echo "Error: Cannot detect Linux distribution."
-    exit 1
+if [[ ! -f /etc/os-release ]]; then
+    fail "Cannot detect Linux distribution."
 fi
 
 source /etc/os-release
@@ -64,7 +67,7 @@ case "$ID" in
     arch|manjaro)
         echo "Using Pacman..."
 
-        sudo pacman -S --needed \
+        sudo pacman -S --needed --noconfirm \
             curl \
             unzip \
             python \
@@ -82,10 +85,12 @@ case "$ID" in
         ;;
 
     *)
-        echo "Error: Unsupported Linux distribution: $ID"
-        exit 1
+        fail "Unsupported Linux distribution: $ID"
         ;;
 esac
+
+# Check Python version
+python3 -c "import sys; assert sys.version_info >= (3, 10), 'Python 3.10 or newer is required.'"
 
 # Download SecScript
 DOWNLOAD_URL="https://github.com/$REPO/archive/refs/tags/$TAG.zip"
@@ -103,9 +108,8 @@ unzip -q "$TEMP_DIR/secscript.zip" -d "$TEMP_DIR"
 
 PROJECT_DIR="$TEMP_DIR/Sec-Script-${TAG#v}"
 
-if [ ! -f "$PROJECT_DIR/pyproject.toml" ]; then
-    echo "Error: Invalid SecScript archive."
-    exit 1
+if [[ ! -f "$PROJECT_DIR/pyproject.toml" ]]; then
+    fail "Invalid SecScript archive."
 fi
 
 # Install SecScript
@@ -129,5 +133,7 @@ fi
 
 echo
 echo "================================"
-echo "SecScript $VERSION installed!"
+echo "SecScript installed!"
 echo "================================"
+
+seclang --help
