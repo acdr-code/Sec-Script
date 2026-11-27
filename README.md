@@ -25,79 +25,87 @@ SecScript also includes its own grammar, AST builder, interpreter, and error-han
 
 ## Installation
 
-SecScript can be installed using `pipx`, which keeps its dependencies isolated from your system Python environment.
+SecScript provides installation scripts for Linux, Windows, and macOS. The installers handle the required dependencies and install the `seclang` command.
 
-See [BUILD.md](BUILD.md) for installation instructions on Linux, macOS, and Windows.
+### Linux
 
-## Usage
+Supported distributions:
+- Debian / Ubuntu / Pop!_OS
+- Arch Linux / Manjaro
+- Fedora
 
-After installation, run a SecScript file using:
-
-```bash
-seclang path/to/file.secs
-```
-
-For example:
+Run:
 
 ```bash
-seclang tests/ex.secs
+curl -fsSL https://raw.githubusercontent.com/acdr-code/Sec-Script/master/installers/install.sh -o install.sh
+chmod +x install.sh
+./install.sh
 ```
 
-You can also use an absolute path:
+### Windows
+
+Requires [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/).
+
+Open PowerShell and run:
+
+```powershell
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/acdr-code/Sec-Script/master/installers/install.ps1" -OutFile "install.ps1"
+Set-ExecutionPolicy -Scope Process Bypass
+.\install.ps1
+```
+
+### macOS
+
+Requires [Homebrew](https://brew.sh/) to be installed.
+
+Run:
 
 ```bash
-seclang /path/to/project.secs
+curl -fsSL https://raw.githubusercontent.com/acdr-code/Sec-Script/master/installers/install-macos.sh -o install-macos.sh
+chmod +x install-macos.sh
+./install-macos.sh
 ```
+
+Supports both Apple Silicon and Intel Macs.
+
+After installation, verify that SecScript is available:
+
+```bash
+seclang --help
+```
+
+---
 
 ## Project Structure
 
 ```text
-SecScript/
+Sec-Script/
 ├── core/
-│   ├── __init__.py
 │   ├── ASTBuild.py
 │   ├── ASTNode.py
-│   ├── errorHandler.py
 │   ├── Grammar.py
-│   └── interpreter.py
+│   ├── interpreter.py
+│   └── errorHandler.py
 │
 ├── fileio/
-│   ├── __init__.py
-│   ├── fileHandel.py
-│   └── pathResolver.py
+│
+├── installers/
+│   ├── install.sh
+│   ├── install.ps1
+│   └── install-macos.sh
 │
 ├── security/
 │   ├── cert/
-│   │   ├── __init__.py
-│   │   └── tsl.py
 │   ├── crypto/
-│   │   ├── __init__.py
-│   │   └── hash.py
 │   ├── network/
-│   │   ├── __init__.py
-│   │   ├── banner.py
-│   │   ├── dns.py
-│   │   └── scanning.py
 │   ├── remote/
-│   │   ├── __init__.py
-│   │   └── sshclient.py
 │   ├── traffic/
-│   │   ├── __init__.py
-│   │   ├── arp.py
-│   │   └── sniffing.py
 │   ├── web/
-│   │   ├── __init__.py
-│   │   ├── indexing.py
-│   │   └── requests.py
 │   └── SecurityStuff.py
 │
-├── utills/
-│   ├── __init__.py
-│   └── convertTypes.py
-│
 ├── tests/
-│   ├── asdasd.secs
-│   └── ex.secs
+│
+├── utills/
 │
 ├── main.py
 ├── pyproject.toml
@@ -126,21 +134,11 @@ Changes to the source code will then be reflected without reinstalling the packa
 
 ## Roadmap
 
-### Version 0.1.0
-
-- [x] Basic language features (variables, loops, functions, ...)
-- [x] SSH, HTTP, DNS, hashing, and TLS checking
-- [x] ARP scanning
-- [x] Improved CLI (`seclang` command)
-
-### Future
-
 - [ ] Expand networking capabilities
 - [ ] Improve service detection and banner functionality
 - [ ] Add malware analysis features
 - [ ] Add digital forensics helpers
 - [ ] Build a proper documentation website
-- [ ] Provide a standalone installer
 
 ## License
 
