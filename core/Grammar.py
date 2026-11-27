@@ -15,6 +15,7 @@ grammar = r"""
              | import_stmt
              | write
              | writeend
+             | try_stmt
 
     if_stmt: "if" "(" expr ")" "{" statement+ "}" ["else" "{" statement+ "}"]
 
@@ -35,6 +36,9 @@ grammar = r"""
     return_stmt: "give" expr
 
     import_stmt: "include" ESCAPED_STRING
+
+    try_stmt: "try" "{" statement+ "}" except_clause+
+    except_clause: "except" NAME "{" statement+ "}"
 
     write: "write" expr "to" expr
 

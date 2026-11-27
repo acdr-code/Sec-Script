@@ -1,3 +1,4 @@
+#error_class
 class SecScriptError(Exception):
     def __init__(self, message, line=None):
         self.message = message
@@ -29,3 +30,22 @@ class SecsArgumentError(SecScriptError):
 
 class SecsBuilderError(SecScriptError):
     pass
+
+#try/except handling
+def tryHandel(node):
+    from .interpreter import interpret, errorTypesDict
+
+    try:
+        interpret(node.body)
+
+    except SecScriptError as e:
+        for handler in node.handlers:
+            expectedType = errorTypesDict[handler.errorType]
+            
+            if isinstance(e, expectedType):
+                interpret(handler.body)
+
+                break
+
+        else:
+            raise

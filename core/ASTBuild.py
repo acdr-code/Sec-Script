@@ -152,6 +152,16 @@ class ASTBuilder(Transformer):
         timeout = items[2]
         return ASTNode.BannerGrabbingNode(ip=ip, timeout=timeout, port=port, line=meta.line)
 
+    def try_stmt(self, meta, items):
+        body = items[0]
+        exceptClause = items[1:]
+        return ASTNode.TryNode(body=body, handlers=exceptClause, line=meta.line)
+
+    def except_clause(self, meta, items):
+        errorType = items[0].name
+        body = items[1]
+        return ASTNode.ExceptNode(body=body, errorType=errorType, line=meta.line)
+
     #file-stuff
     def write(self, meta, items):
         container = items[0]

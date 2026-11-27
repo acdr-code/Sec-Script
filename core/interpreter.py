@@ -9,6 +9,7 @@ from .errorHandler import (
     SecsTypeError, SecsArgumentError, SecsSyntaxError,
     SecsBuilderError
 )
+from .errorHandler import tryHandel
 from lark.exceptions import (
     UnexpectedCharacters, UnexpectedEOF,
     UnexpectedToken, VisitError
@@ -25,6 +26,15 @@ from .Grammar import parser
 imported_files = set()
 loading_files = set()
 dir_stack = []
+errorTypesDict = {
+    "Error": SecScriptError,
+    "RuntimeError": SecsRuntimeError,
+    "NameError": SecsNameError,
+    "TypeError": SecsTypeError,
+    "ArgumentError": SecsArgumentError,
+    "SyntaxError": SecsSyntaxError,
+    "BuilderError": SecsBuilderError
+}
 
 
 def run_file(filepath):
@@ -866,6 +876,9 @@ def interpret(node):
         target_path = os.path.join(current_dir, filename)
 
         run_file(target_path)
+
+    elif isinstance(node, ASTNode.TryNode):
+        tryHandel(node)
 
     elif isinstance(node, ASTNode.ShellNode):
         target = evaluate(node.target)

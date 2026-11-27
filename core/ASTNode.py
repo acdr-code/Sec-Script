@@ -191,6 +191,18 @@ class BannerGrabbingNode(ASTNODE):
         self.port = port
         self.timeout = timeout
 
+class TryNode(ASTNODE):
+    def __init__(self, body, handlers, line=None):
+        super().__init__(line)
+        self.body = body
+        self.handlers = handlers
+
+class ExceptNode(ASTNODE):
+    def __init__(self, errorType, body, line=None):
+        super().__init__(line)
+        self.errorType = errorType
+        self.body = body
+
 #file-stuff
 class SimpleWriteNode(ASTNODE):
     def __init__(self, container, file, line=None):
